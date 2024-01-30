@@ -1,5 +1,6 @@
 package checkvuz.checkvuz.university.controller;
 
+import checkvuz.checkvuz.faculty.entity.Faculty;
 import checkvuz.checkvuz.university.entity.University;
 import checkvuz.checkvuz.university.entity.UniversityTag;
 import checkvuz.checkvuz.university.service.UniversityService;
@@ -41,6 +42,11 @@ public class UniversityController {
         return universityService.assignTag(universityId, tagId);
     }
 
+    @DeleteMapping("/universities/{universityId}/tags/{tagId}")
+    public ResponseEntity<?> removeTag(@PathVariable Long universityId, @PathVariable Long tagId) {
+        return universityService.removeTag(universityId, tagId);
+    }
+
     @PutMapping("/universities/{universityId}")
     public ResponseEntity<?> updateUniversity(@RequestBody University universityToUpdate,
                                               @PathVariable Long universityId) {
@@ -51,5 +57,10 @@ public class UniversityController {
     @DeleteMapping("/universities/{universityId}")
     public ResponseEntity<?> deleteUniversity(@PathVariable Long universityId) {
         return universityService.deleteUniversity(universityId);
+    }
+
+    @GetMapping("/universities/{universityId}/faculties")
+    public CollectionModel<EntityModel<Faculty>> getUniversityFaculties(@PathVariable Long universityId) {
+        return universityService.getUniversityFaculties(universityId);
     }
 }

@@ -1,14 +1,19 @@
 package checkvuz.checkvuz.university.service;
 
+import checkvuz.checkvuz.faculty.assembler.FacultyModelAssembler;
+import checkvuz.checkvuz.faculty.entity.Faculty;
+import checkvuz.checkvuz.faculty.repository.FacultyRepository;
 import checkvuz.checkvuz.university.assembler.UniversityModelAssembler;
 import checkvuz.checkvuz.university.assembler.UniversityTagModelAssembler;
 import checkvuz.checkvuz.university.controller.UniversityController;
+import checkvuz.checkvuz.university.controller.UniversityTagController;
 import checkvuz.checkvuz.university.entity.University;
 import checkvuz.checkvuz.university.entity.UniversityTag;
 import checkvuz.checkvuz.university.exception.UniversityNotFoundException;
 import checkvuz.checkvuz.university.exception.UniversityTagNotFoundException;
 import checkvuz.checkvuz.university.repository.UniversityRepository;
 import checkvuz.checkvuz.university.repository.UniversityTagRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -32,6 +37,9 @@ public class UniversityService implements UniversityServiceInterface {
 
     private final UniversityTagRepository universityTagRepository;
     private final UniversityTagModelAssembler universityTagModelAssembler;
+
+    private final FacultyModelAssembler facultyModelAssembler;
+    private final FacultyRepository facultyRepository;
 
     // get all universities
     @Override
@@ -65,47 +73,6 @@ public class UniversityService implements UniversityServiceInterface {
         return universityModelAssembler.toModel(university);
     }
 
-
-    // get tags that are assigned to one specific university
-    @Override
-    public CollectionModel<EntityModel<UniversityTag>> getAssignedTags(Long universityId) {
-
-        University university = universityRepository
-                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
-
-        List<UniversityTag> tags = universityTagRepository.findAll().stream().toList();
-
-        List<UniversityTag> universityTags = new ArrayList<>();
-        for (UniversityTag tag : tags) {
-            if (university.getUniversityTags().contains(tag)) {
-                universityTags.add(tag);
-            }
-        }
-
-        List<EntityModel<UniversityTag>> entityUniversityTags = universityTags.stream()
-                .map(universityTagModelAssembler::toModel)
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(entityUniversityTags,
-                linkTo(methodOn(UniversityController.class).getAssignedTags(universityId)).withSelfRel());
-    }
-
-    // assign tag to one specific university
-    @Override
-    public ResponseEntity<?> assignTag(Long universityId, Long tagId) {
-
-        University university = universityRepository
-                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
-        UniversityTag universityTag = universityTagRepository
-                .findById(tagId).orElseThrow(() -> new UniversityTagNotFoundException(tagId));
-
-        university.getUniversityTags().add(universityTag);
-        universityRepository.save(university);
-
-        EntityModel<University> entityModel = universityModelAssembler.toModel(university);
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
-    }
-
     // update university info
     @Override
     public ResponseEntity<?> updateUniversity(University universityToUpdate, Long universityId) {
@@ -137,5 +104,83 @@ public class UniversityService implements UniversityServiceInterface {
         universityRepository.deleteById(universityId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    // UNIVERSITY TAGS SECTION
+    // get tags that are assigned to one specific university
+    @Override
+    public CollectionModel<EntityModel<UniversityTag>> getAssignedTags(Long universityId) {
+
+        University university = universityRepository
+                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
+
+        List<UniversityTag> tags = universityTagRepository.findAll().stream().toList();
+
+        List<UniversityTag> universityTags = new ArrayList<>();
+        for (UniversityTag tag : tags) {
+            if (university.getUniversityTags().contains(tag)) {
+                universityTags.add(tag);
+            }
+        }
+
+        List<EntityModel<UniversityTag>> entityUniversityTags = universityTags.stream()
+                .map(universityTagModelAssembler::toModel)
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(entityUniversityTags,
+                linkTo(methodOn(UniversityTagController.class).getUniversityTags()).withSelfRel());
+    }
+
+    // assign tag to one specific university
+    @Override
+    @Transactional
+    public ResponseEntity<?> assignTag(Long universityId, Long tagId) {
+
+        University university = universityRepository
+                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
+        UniversityTag universityTag = universityTagRepository
+                .findById(tagId).orElseThrow(() -> new UniversityTagNotFoundException(tagId));
+
+        university.getUniversityTags().add(universityTag);
+        universityRepository.save(university);
+
+        EntityModel<University> entityModel = universityModelAssembler.toModel(university);
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    }
+
+    // remove tag from university
+    @Override
+    @Transactional
+    public ResponseEntity<?> removeTag(Long universityId, Long tagId) {
+
+        University university = universityRepository
+                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
+        UniversityTag universityTag = universityTagRepository
+                .findById(tagId).orElseThrow(() -> new UniversityTagNotFoundException(tagId));
+
+        university.getUniversityTags().remove(universityTag);
+        universityRepository.save(university);
+
+        EntityModel<University> entityModel = universityModelAssembler.toModel(university);
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    }
+
+    // UNIVERSITY FACULTIES SECTION
+    @Override
+    public CollectionModel<EntityModel<Faculty>> getUniversityFaculties(Long universityId) {
+
+        University university = universityRepository
+                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
+
+        List<EntityModel<Faculty>> universityFaculties = new ArrayList<>();
+
+        for (Faculty faculty : facultyRepository.findAll()) {
+            if (faculty.getUniversity() == university) {
+                universityFaculties.add(facultyModelAssembler.toModel(faculty));
+            }
+        }
+
+        return CollectionModel.of(universityFaculties,
+                linkTo(methodOn(UniversityController.class).getUniversityFaculties(universityId)).withSelfRel());
     }
 }

@@ -17,6 +17,7 @@ public class UniversityTagModelAssembler implements
     public EntityModel<UniversityTag> toModel(UniversityTag universityTag) {
         return EntityModel.of(universityTag,
                 linkTo(methodOn(UniversityTagController.class).getUniversityTag(universityTag.getId())).withSelfRel(),
-                linkTo(methodOn(UniversityTagController.class).getUniversityTags()).withRel("university_tags"));
+                linkTo(methodOn(UniversityTagController.class).getUniversityTags()).withRel("university_tags")
+        );
     }
 }
