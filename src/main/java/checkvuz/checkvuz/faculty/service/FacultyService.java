@@ -1,10 +1,15 @@
 package checkvuz.checkvuz.faculty.service;
 
 import checkvuz.checkvuz.faculty.assembler.FacultyModelAssembler;
+import checkvuz.checkvuz.faculty.assembler.FacultyTagModelAssembler;
 import checkvuz.checkvuz.faculty.controller.FacultyController;
+import checkvuz.checkvuz.faculty.controller.FacultyTagController;
 import checkvuz.checkvuz.faculty.entity.Faculty;
+import checkvuz.checkvuz.faculty.entity.FacultyTag;
 import checkvuz.checkvuz.faculty.exception.FacultyNotFoundException;
+import checkvuz.checkvuz.faculty.exception.FacultyTagNotFoundException;
 import checkvuz.checkvuz.faculty.repository.FacultyRepository;
+import checkvuz.checkvuz.faculty.repository.FacultyTagRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -12,6 +17,7 @@ import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +31,9 @@ public class FacultyService implements FacultyServiceInterface {
     private final FacultyModelAssembler facultyModelAssembler;
     private final FacultyRepository facultyRepository;
 
+    private final FacultyTagModelAssembler facultyTagModelAssembler;
+    private final FacultyTagRepository facultyTagRepository;
+
     @Override
     public CollectionModel<EntityModel<Faculty>> getAllFaculties() {
 
@@ -34,14 +43,6 @@ public class FacultyService implements FacultyServiceInterface {
 
         return CollectionModel.of(faculties,
                 linkTo(methodOn(FacultyController.class).getAllFaculties()).withSelfRel());
-    }
-
-    @Override
-    public ResponseEntity<?> createFaculty(Faculty facultyToCreate) {
-
-        EntityModel<Faculty> entityModel = facultyModelAssembler.toModel(facultyRepository.save(facultyToCreate));
-
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @Override
@@ -82,5 +83,53 @@ public class FacultyService implements FacultyServiceInterface {
         facultyRepository.deleteById(facultyId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    // FACULTY TAGS SECTION
+    @Override
+    public CollectionModel<EntityModel<FacultyTag>> getAssignedTags(Long facultyId) {
+
+        Faculty faculty = facultyRepository
+                .findById(facultyId).orElseThrow(() -> new FacultyNotFoundException(facultyId));
+
+        List<FacultyTag> tags = facultyTagRepository.findAll().stream().toList();
+
+        List<EntityModel<FacultyTag>> facultyTags = new ArrayList<>();
+        for (FacultyTag facultyTag : tags) {
+            if (faculty.getFacultyTags().contains(facultyTag)) {
+                facultyTags.add(facultyTagModelAssembler.toModel(facultyTag));
+            }
+        }
+
+        return CollectionModel.of(facultyTags,
+                linkTo(methodOn(FacultyTagController.class).getFacultyTags()).withSelfRel());
+    }
+
+    @Override
+    public ResponseEntity<?> assignTag(Long facultyId, Long facultyTagId) {
+        Faculty faculty = facultyRepository
+                .findById(facultyId).orElseThrow(() -> new FacultyNotFoundException(facultyId));
+        FacultyTag facultyTag = facultyTagRepository
+                .findById(facultyId).orElseThrow(() -> new FacultyTagNotFoundException(facultyTagId));
+
+        faculty.getFacultyTags().add(facultyTag);
+        facultyRepository.save(faculty);
+
+        EntityModel<Faculty> entityModel = facultyModelAssembler.toModel(faculty);
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    }
+
+    @Override
+    public ResponseEntity<?> removeTag(Long facultyId, Long facultyTagId) {
+        Faculty faculty = facultyRepository
+                .findById(facultyId).orElseThrow(() -> new FacultyNotFoundException(facultyId));
+        FacultyTag facultyTag = facultyTagRepository
+                .findById(facultyId).orElseThrow(() -> new FacultyTagNotFoundException(facultyTagId));
+
+        faculty.getFacultyTags().remove(facultyTag);
+        facultyRepository.save(faculty);
+
+        EntityModel<Faculty> entityModel = facultyModelAssembler.toModel(faculty);
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 }

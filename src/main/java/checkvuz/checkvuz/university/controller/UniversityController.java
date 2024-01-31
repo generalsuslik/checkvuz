@@ -32,6 +32,19 @@ public class UniversityController {
         return universityService.getUniversity(universityId);
     }
 
+    @PutMapping("/universities/{universityId}")
+    public ResponseEntity<?> updateUniversity(@RequestBody University universityToUpdate,
+                                              @PathVariable Long universityId) {
+
+        return universityService.updateUniversity(universityToUpdate, universityId);
+    }
+
+    @DeleteMapping("/universities/{universityId}")
+    public ResponseEntity<?> deleteUniversity(@PathVariable Long universityId) {
+        return universityService.deleteUniversity(universityId);
+    }
+
+    // UNIVERSITY TAGS SECTION
     @GetMapping("/universities/{universityId}/tags")
     public CollectionModel<EntityModel<UniversityTag>> getAssignedTags(@PathVariable Long universityId) {
         return universityService.getAssignedTags(universityId);
@@ -47,20 +60,16 @@ public class UniversityController {
         return universityService.removeTag(universityId, tagId);
     }
 
-    @PutMapping("/universities/{universityId}")
-    public ResponseEntity<?> updateUniversity(@RequestBody University universityToUpdate,
-                                              @PathVariable Long universityId) {
-
-        return universityService.updateUniversity(universityToUpdate, universityId);
-    }
-
-    @DeleteMapping("/universities/{universityId}")
-    public ResponseEntity<?> deleteUniversity(@PathVariable Long universityId) {
-        return universityService.deleteUniversity(universityId);
-    }
-
+    // UNIVERSITY FACULTIES SECTION
     @GetMapping("/universities/{universityId}/faculties")
     public CollectionModel<EntityModel<Faculty>> getUniversityFaculties(@PathVariable Long universityId) {
         return universityService.getUniversityFaculties(universityId);
+    }
+
+    @PostMapping("/universities/{universityId}/faculties")
+    public ResponseEntity<EntityModel<Faculty>> createAndAssignFaculty(@PathVariable Long universityId,
+                                                                       @RequestBody Faculty facultyToCreate) {
+
+        return universityService.createAndAssignFaculty(universityId, facultyToCreate);
     }
 }

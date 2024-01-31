@@ -8,6 +8,7 @@ import checkvuz.checkvuz.faculty.repository.FacultyTagRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +37,12 @@ public class FacultyTagService implements FacultyTagServiceInterface {
     }
 
     @Override
-    public ResponseEntity<?> createFaculty() {
-        return null;
+    public ResponseEntity<?> createFacultyTag(FacultyTag facultyTagToCreate) {
+
+        EntityModel<FacultyTag> entityModel =
+                facultyTagModelAssembler.toModel(facultyTagRepository.save(facultyTagToCreate));
+
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @Override
@@ -50,12 +55,29 @@ public class FacultyTagService implements FacultyTagServiceInterface {
     }
 
     @Override
-    public ResponseEntity<?> updateFacultyTag() {
-        return null;
+    public ResponseEntity<?> updateFacultyTag(FacultyTag facultyTagToUpdate, Long facultyTagId) {
+
+        FacultyTag updatedFacultyTag = facultyTagRepository.findById(facultyTagId)
+                .map(facultyTag -> {
+                    facultyTag.setId(facultyTagToUpdate.getId());
+                    facultyTag.setTitle(facultyTagToUpdate.getTitle());
+                    return facultyTagRepository.save(facultyTag);
+                })
+                .orElseGet(() -> {
+                    facultyTagToUpdate.setId(facultyTagId);
+                    return facultyTagRepository.save(facultyTagToUpdate);
+                });
+
+        EntityModel<FacultyTag> entityModel = facultyTagModelAssembler.toModel(updatedFacultyTag);
+
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @Override
-    public ResponseEntity<?> deleteFacultyTag() {
-        return null;
+    public ResponseEntity<?> deleteFacultyTag(Long facultyTagId) {
+
+        facultyTagRepository.deleteById(facultyTagId);
+
+        return ResponseEntity.noContent().build();
     }
 }

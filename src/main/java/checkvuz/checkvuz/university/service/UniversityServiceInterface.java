@@ -25,4 +25,6 @@ public interface UniversityServiceInterface {
     ResponseEntity<?> removeTag(Long universityId, Long tagId);
 
     CollectionModel<EntityModel<Faculty>> getUniversityFaculties(Long universityId);
+
+    ResponseEntity<EntityModel<Faculty>>  createAndAssignFaculty(Long universityId, Faculty facultyToCreate);
 }

@@ -183,4 +183,16 @@ public class UniversityService implements UniversityServiceInterface {
         return CollectionModel.of(universityFaculties,
                 linkTo(methodOn(UniversityController.class).getUniversityFaculties(universityId)).withSelfRel());
     }
+
+    @Override
+    public ResponseEntity<EntityModel<Faculty>> createAndAssignFaculty(Long universityId, Faculty facultyToCreate) {
+
+        University university = universityRepository
+                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
+
+        facultyToCreate.setUniversity(university);
+        EntityModel<Faculty> entityModel = facultyModelAssembler.toModel(facultyRepository.save(facultyToCreate));
+
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    }
 }
