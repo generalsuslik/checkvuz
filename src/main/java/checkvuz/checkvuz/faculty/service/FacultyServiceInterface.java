@@ -1,5 +1,6 @@
 package checkvuz.checkvuz.faculty.service;
 
+import checkvuz.checkvuz.department.entity.Department;
 import checkvuz.checkvuz.faculty.entity.Faculty;
 import checkvuz.checkvuz.faculty.entity.FacultyTag;
 import org.springframework.hateoas.CollectionModel;
@@ -17,7 +18,11 @@ public interface FacultyServiceInterface {
 
     CollectionModel<EntityModel<FacultyTag>> getAssignedTags(Long facultyId);
 
-    ResponseEntity<?> assignTag(Long facultyId, Long facultyTagId);
+    ResponseEntity<EntityModel<Faculty>> assignTag(Long facultyId, Long facultyTagId);
 
     ResponseEntity<?> removeTag(Long facultyId, Long facultyTagId);
+
+    CollectionModel<EntityModel<Department>> getAssignedDepartments(Long facultyId);
+
+    ResponseEntity<EntityModel<Department>> createAndAssignDepartment(Department departmentToCreate, Long facultyId);
 }

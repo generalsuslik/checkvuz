@@ -20,7 +20,7 @@ public interface UniversityServiceInterface {
 
     CollectionModel<EntityModel<UniversityTag>> getAssignedTags(Long universityId);
 
-    ResponseEntity<?> assignTag(Long universityId, Long tagId);
+    ResponseEntity<EntityModel<University>> assignTag(Long universityId, Long tagId);
 
     ResponseEntity<?> removeTag(Long universityId, Long tagId);
 

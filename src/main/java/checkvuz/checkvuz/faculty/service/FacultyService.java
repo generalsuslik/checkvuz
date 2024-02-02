@@ -1,5 +1,9 @@
 package checkvuz.checkvuz.faculty.service;
 
+import checkvuz.checkvuz.department.assembler.DepartmentModelAssembler;
+import checkvuz.checkvuz.department.controller.DepartmentController;
+import checkvuz.checkvuz.department.entity.Department;
+import checkvuz.checkvuz.department.repository.DepartmentRepository;
 import checkvuz.checkvuz.faculty.assembler.FacultyModelAssembler;
 import checkvuz.checkvuz.faculty.assembler.FacultyTagModelAssembler;
 import checkvuz.checkvuz.faculty.controller.FacultyController;
@@ -10,6 +14,7 @@ import checkvuz.checkvuz.faculty.exception.FacultyNotFoundException;
 import checkvuz.checkvuz.faculty.exception.FacultyTagNotFoundException;
 import checkvuz.checkvuz.faculty.repository.FacultyRepository;
 import checkvuz.checkvuz.faculty.repository.FacultyTagRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -34,6 +39,9 @@ public class FacultyService implements FacultyServiceInterface {
     private final FacultyTagModelAssembler facultyTagModelAssembler;
     private final FacultyTagRepository facultyTagRepository;
 
+    private final DepartmentModelAssembler departmentModelAssembler;
+    private final DepartmentRepository departmentRepository;
+
     @Override
     public CollectionModel<EntityModel<Faculty>> getAllFaculties() {
 
@@ -55,6 +63,7 @@ public class FacultyService implements FacultyServiceInterface {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> updateFaculty(Faculty facultyToUpdate, Long facultyId) {
 
         Faculty updatedFaculty = facultyRepository.findById(facultyId)
@@ -73,11 +82,11 @@ public class FacultyService implements FacultyServiceInterface {
                 });
 
         EntityModel<Faculty> entityModel = facultyModelAssembler.toModel(updatedFaculty);
-
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> deleteFaculty(Long facultyId) {
 
         facultyRepository.deleteById(facultyId);
@@ -106,11 +115,12 @@ public class FacultyService implements FacultyServiceInterface {
     }
 
     @Override
-    public ResponseEntity<?> assignTag(Long facultyId, Long facultyTagId) {
+    @Transactional
+    public ResponseEntity<EntityModel<Faculty>> assignTag(Long facultyId, Long facultyTagId) {
         Faculty faculty = facultyRepository
                 .findById(facultyId).orElseThrow(() -> new FacultyNotFoundException(facultyId));
         FacultyTag facultyTag = facultyTagRepository
-                .findById(facultyId).orElseThrow(() -> new FacultyTagNotFoundException(facultyTagId));
+                .findById(facultyTagId).orElseThrow(() -> new FacultyTagNotFoundException(facultyTagId));
 
         faculty.getFacultyTags().add(facultyTag);
         facultyRepository.save(faculty);
@@ -120,6 +130,7 @@ public class FacultyService implements FacultyServiceInterface {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> removeTag(Long facultyId, Long facultyTagId) {
         Faculty faculty = facultyRepository
                 .findById(facultyId).orElseThrow(() -> new FacultyNotFoundException(facultyId));
@@ -129,7 +140,43 @@ public class FacultyService implements FacultyServiceInterface {
         faculty.getFacultyTags().remove(facultyTag);
         facultyRepository.save(faculty);
 
-        EntityModel<Faculty> entityModel = facultyModelAssembler.toModel(faculty);
+        EntityModel<Faculty> facultyEntityModel = facultyModelAssembler.toModel(faculty);
+        return ResponseEntity
+                .created(facultyEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(facultyEntityModel);
+    }
+
+
+    // FACULTY DEPARTMENT SECTION
+    @Override
+    public CollectionModel<EntityModel<Department>> getAssignedDepartments(Long facultyId) {
+
+        Faculty faculty = facultyRepository
+                .findById(facultyId).orElseThrow(() -> new FacultyNotFoundException(facultyId));
+        List<Department> departments = departmentRepository.findAll().stream().toList();
+
+        List<EntityModel<Department>> assignedDepartments = new ArrayList<>();
+        for (Department department : departments) {
+            if (department.getFaculty() == faculty) {
+                assignedDepartments.add(departmentModelAssembler.toModel(department));
+            }
+        }
+
+        return CollectionModel.of(assignedDepartments,
+                linkTo(methodOn(DepartmentController.class).getDepartments()).withSelfRel());
+    }
+
+    @Override
+    public ResponseEntity<EntityModel<Department>> createAndAssignDepartment(Department departmentToCreate,
+                                                                             Long facultyId) {
+
+        Faculty faculty = facultyRepository
+                .findById(facultyId).orElseThrow(() -> new FacultyNotFoundException(facultyId));
+
+        departmentToCreate.setFaculty(faculty);
+        EntityModel<Department> entityModel = departmentModelAssembler.toModel(
+                departmentRepository.save(departmentToCreate)
+        );
+
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 }

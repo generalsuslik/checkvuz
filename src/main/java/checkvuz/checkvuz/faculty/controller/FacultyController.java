@@ -1,5 +1,6 @@
 package checkvuz.checkvuz.faculty.controller;
 
+import checkvuz.checkvuz.department.entity.Department;
 import checkvuz.checkvuz.faculty.entity.Faculty;
 import checkvuz.checkvuz.faculty.entity.FacultyTag;
 import checkvuz.checkvuz.faculty.service.FacultyService;
@@ -10,47 +11,60 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/faculties")
 @AllArgsConstructor
 public class FacultyController {
 
-    private FacultyService facultyService;
+    private final FacultyService facultyService;
 
 
     // MAIN FACULTY SECTION
-    @GetMapping("faculties")
+    @GetMapping("")
     public CollectionModel<EntityModel<Faculty>> getAllFaculties() {
         return facultyService.getAllFaculties();
     }
 
-    @GetMapping("faculties/{facultyId}")
+    @GetMapping("/{facultyId}")
     public EntityModel<Faculty> getFaculty(@PathVariable Long facultyId) {
         return facultyService.getFaculty(facultyId);
     }
 
-    @PutMapping("/faculties/{facultyId}")
+    @PutMapping("/{facultyId}")
     public ResponseEntity<?> updateFaculty(@RequestBody Faculty facultyToUpdate, @PathVariable Long facultyId) {
         return facultyService.updateFaculty(facultyToUpdate, facultyId);
     }
 
-    @DeleteMapping("/faculties/{facultyId}")
+    @DeleteMapping("/{facultyId}")
     public ResponseEntity<?> deleteFaculty(@PathVariable Long facultyId) {
         return facultyService.deleteFaculty(facultyId);
     }
 
     // FACULTY TAGS SECTION
-    @GetMapping("/faculties/{facultyId}/tags")
+    @GetMapping("/{facultyId}/tags")
     public CollectionModel<EntityModel<FacultyTag>> getAssignedTags(@PathVariable Long facultyId) {
         return facultyService.getAssignedTags(facultyId);
     }
 
-    @PutMapping("/faculties/{facultyId}/tags/{facultyTagId}")
+    @PutMapping("/{facultyId}/tags/{facultyTagId}")
     public ResponseEntity<?> assignTag(@PathVariable Long facultyId, @PathVariable Long facultyTagId) {
         return facultyService.assignTag(facultyId, facultyTagId);
     }
 
-    @DeleteMapping("/faculties/{facultyId}/tags/{facultyTagId}")
+    @DeleteMapping("/{facultyId}/tags/{facultyTagId}")
     public ResponseEntity<?> removeTag(@PathVariable Long facultyId, @PathVariable Long facultyTagId) {
         return facultyService.removeTag(facultyId, facultyTagId);
+    }
+
+    // FACULTY DEPARTMENTS SECTION
+    @GetMapping("/{facultyTagId}/departments")
+    public CollectionModel<EntityModel<Department>> getAssignedDepartments(@PathVariable Long facultyTagId) {
+        return facultyService.getAssignedDepartments(facultyTagId);
+    }
+
+    @PostMapping("/{facultyId}/departments")
+    public ResponseEntity<EntityModel<Department>> createAndAssignDepartment(@RequestBody Department departmentToCreate,
+                                                                             @PathVariable Long facultyId) {
+
+        return facultyService.createAndAssignDepartment(departmentToCreate, facultyId);
     }
 }

@@ -1,20 +1,20 @@
-package checkvuz.checkvuz.faculty.entity;
+package checkvuz.checkvuz.department.entity;
 
-import checkvuz.checkvuz.university.entity.University;
+import checkvuz.checkvuz.faculty.entity.Faculty;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
 @Entity
-@Table(name = "faculties")
-public class Faculty {
+@Table(name = "department")
+public class Department {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
 
@@ -28,15 +28,14 @@ public class Faculty {
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "university_id", nullable = false)
-    private University university;
+    @JoinColumn(name = "faculty_id", nullable = false)
+    private Faculty faculty;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
-            name = "faculty_tags_relation",
-            joinColumns = @JoinColumn(name = "faculty_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "faculty_tag_id", referencedColumnName = "id")
+            name = "department_tags_relation",
+            joinColumns = @JoinColumn(name = "department_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "department_tag_id", referencedColumnName = "id")
     )
-    private Set<FacultyTag> facultyTags;
-
+    private Set<DepartmentTag> departmentTags;
 }

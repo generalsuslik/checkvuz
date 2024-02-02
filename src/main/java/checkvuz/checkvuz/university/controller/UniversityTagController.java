@@ -9,28 +9,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/university-tags")
 @AllArgsConstructor
 public class UniversityTagController {
 
     private final UniversityTagService universityTagService;
 
-    @GetMapping("/university-tags")
+    @GetMapping("")
     public CollectionModel<EntityModel<UniversityTag>> getUniversityTags() {
         return universityTagService.getUniversityTags();
     }
 
-    @PostMapping("/university-tags")
+    @PostMapping("")
     public ResponseEntity<?> createUniversityTag(@RequestBody UniversityTag universityTag) {
         return universityTagService.createUniversityTag(universityTag);
     }
 
-    @GetMapping("/university-tags/{universityTagId}")
+    @GetMapping("/{universityTagId}")
     public EntityModel<UniversityTag> getUniversityTag(@PathVariable Long universityTagId) {
         return universityTagService.getUniversityTag(universityTagId);
     }
 
-    @PutMapping("/university-tags/{universityTagId}")
+    @PutMapping("/{universityTagId}")
     public ResponseEntity<?> updateUniversityTag(@RequestBody UniversityTag universityTagToUpdate,
                                                  @PathVariable Long universityTagId) {
 

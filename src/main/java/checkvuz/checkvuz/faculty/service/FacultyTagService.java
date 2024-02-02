@@ -69,7 +69,6 @@ public class FacultyTagService implements FacultyTagServiceInterface {
                 });
 
         EntityModel<FacultyTag> entityModel = facultyTagModelAssembler.toModel(updatedFacultyTag);
-
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 

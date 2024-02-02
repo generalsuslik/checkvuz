@@ -55,6 +55,7 @@ public class UniversityService implements UniversityServiceInterface {
 
     // create new university
     @Override
+    @Transactional
     public ResponseEntity<?> createUniversity(University universityToCreate) {
 
         EntityModel<University> entityModel =
@@ -75,6 +76,7 @@ public class UniversityService implements UniversityServiceInterface {
 
     // update university info
     @Override
+    @Transactional
     public ResponseEntity<?> updateUniversity(University universityToUpdate, Long universityId) {
 
         University updatedUniversity = universityRepository.findById(universityId)
@@ -99,6 +101,7 @@ public class UniversityService implements UniversityServiceInterface {
 
     // delete university
     @Override
+    @Transactional
     public ResponseEntity<?> deleteUniversity(Long universityId) {
 
         universityRepository.deleteById(universityId);
@@ -134,7 +137,7 @@ public class UniversityService implements UniversityServiceInterface {
     // assign tag to one specific university
     @Override
     @Transactional
-    public ResponseEntity<?> assignTag(Long universityId, Long tagId) {
+    public ResponseEntity<EntityModel<University>> assignTag(Long universityId, Long tagId) {
 
         University university = universityRepository
                 .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
@@ -185,6 +188,7 @@ public class UniversityService implements UniversityServiceInterface {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<EntityModel<Faculty>> createAndAssignFaculty(Long universityId, Faculty facultyToCreate) {
 
         University university = universityRepository

@@ -1,5 +1,4 @@
 package checkvuz.checkvuz.university.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,7 +6,7 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
