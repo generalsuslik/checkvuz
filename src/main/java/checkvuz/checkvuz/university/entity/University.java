@@ -10,15 +10,16 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode
+@Builder
 @Entity
 @Table(name = "universities")
 public class University {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
 
-    @Column(nullable = false, name = "title")
+    @Column(nullable = false, name = "title", unique = true)
     private String title;
 
-    @Column(nullable = false, name = "expanded_title")
+    @Column(nullable = false, name = "expanded_title", unique = true)
     private String expandedTitle;
 
     @Column(name = "description")

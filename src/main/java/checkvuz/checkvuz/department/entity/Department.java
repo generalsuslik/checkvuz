@@ -12,16 +12,17 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode
+@Builder
 @Entity
 @Table(name = "department")
 public class Department {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, unique = true)
     private String title;
 
-    @Column(name = "expanded_title", nullable = false)
+    @Column(name = "expanded_title", nullable = false, unique = true)
     private String expanded_title;
 
     @Column(name = "description")
