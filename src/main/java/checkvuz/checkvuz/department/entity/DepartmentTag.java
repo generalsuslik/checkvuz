@@ -1,6 +1,6 @@
 package checkvuz.checkvuz.department.entity;
 
-import checkvuz.checkvuz.common.entity.Tag;
+import checkvuz.checkvuz.utils.entity.Tag;
 import jakarta.persistence.*;
 
 import java.util.Set;

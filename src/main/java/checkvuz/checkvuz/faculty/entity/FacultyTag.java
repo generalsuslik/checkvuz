@@ -1,6 +1,6 @@
 package checkvuz.checkvuz.faculty.entity;
 
-import checkvuz.checkvuz.common.entity.Tag;
+import checkvuz.checkvuz.utils.entity.Tag;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;

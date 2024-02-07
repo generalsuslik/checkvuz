@@ -1,4 +1,4 @@
-package checkvuz.checkvuz.common.entity;
+package checkvuz.checkvuz.utils.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
