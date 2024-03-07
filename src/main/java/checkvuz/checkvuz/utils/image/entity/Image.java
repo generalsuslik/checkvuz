@@ -1,21 +1,20 @@
 package checkvuz.checkvuz.utils.image.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
-@Data
-@Builder
+@MappedSuperclass
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "images")
+@Getter
+@Setter
+@EqualsAndHashCode
+@Builder
 public class Image {
+
     /*
     * This entity will store in itself path to specific image
     * because when we store bytes of image, mysql database says that ~the image is to big puk puk~
