@@ -108,4 +108,16 @@ public class UserService implements UserDetailsService, UserServiceInterface {
     public ResponseEntity<?> deleteUser(Long userId) {
         return null;
     }
+
+//    public static void main(String[] args) {
+//        User user = User.builder()
+//                .id(1L)
+//                .username("asd")
+//                .email("asd")
+//                .password("asd")
+//                .roles(Set.of(UserRole.builder().title("USER_ROLE").build()))
+//                .build();
+//
+//        System.out.println(user.getAuthorities());
+//    }
 }
