@@ -2,7 +2,6 @@ package checkvuz.checkvuz.user.service;
 
 import checkvuz.checkvuz.security.dto.RegistrationUserDto;
 import checkvuz.checkvuz.user.assembler.UserModelAssembler;
-import checkvuz.checkvuz.user.controller.UserController;
 import checkvuz.checkvuz.user.entity.User;
 import checkvuz.checkvuz.user.entity.UserRole;
 import checkvuz.checkvuz.user.exception.UserNotFoundByEmailException;
@@ -11,9 +10,7 @@ import checkvuz.checkvuz.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,13 +18,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 @RequiredArgsConstructor
@@ -57,13 +51,9 @@ public class UserService implements UserDetailsService, UserServiceInterface {
     }
 
     @Override
-    public CollectionModel<EntityModel<User>> getUsers() {
+    public List<User> getUsers() {
 
-        List<EntityModel<User>> userList = userRepository.findAll().stream()
-                .map(userModelAssembler::toModel)
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(userList, linkTo(methodOn(UserController.class).getUsers()).withSelfRel());
+        return new ArrayList<>(userRepository.findAll());
     }
 
     @Override
@@ -80,39 +70,59 @@ public class UserService implements UserDetailsService, UserServiceInterface {
     }
 
     @Override
-    public EntityModel<User> getUserById(Long userId) {
+    public User getUserById(Long userId) {
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundByIdException(userId));
-
-        return userModelAssembler.toModel(user);
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundByIdException(userId));
     }
 
     @Override
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User getUserByUsername(String username) {
+
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     @Override
-    public EntityModel<User> getUserByEmail(String email) {
+    public User getUserByEmail(String email) {
 
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundByEmailException(email));
-
-        return userModelAssembler.toModel(user);
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundByEmailException(email));
     }
 
     @Override
-    public ResponseEntity<EntityModel<User>> updateUser(User userToUpdate, Long userId) {
-        return null;
+    public User updateUser(User userToUpdate, Long userId) {
+
+        return userRepository.findById(userId)
+                .map(user -> {
+                    user.setId(userToUpdate.getId());
+                    user.setUsername(userToUpdate.getUsername());
+                    user.setEmail(userToUpdate.getEmail());
+                    user.setPassword(passwordEncoder.encode(userToUpdate.getPassword()));
+                    user.setUserImage(userToUpdate.getUserImage());
+                    user.setRoles(userToUpdate.getRoles());
+                    return userRepository.save(user);
+                })
+                .orElseGet(() -> {
+                    userToUpdate.setId(userId);
+                    return userRepository.save(userToUpdate);
+                });
     }
 
     @Override
-    public ResponseEntity<?> assignUserRole(String role, Long userId) {
+    public User assignUserRole(String role, Long userId) {
+
         UserRole userRole = roleService.getRoleByTitle(role).getContent();
-        return null;
+        User updatedUser = getUserById(userId);
+        updatedUser.getRoles().add(userRole);
+        return userRepository.save(updatedUser);
     }
 
     @Override
-    public ResponseEntity<?> deleteUser(Long userId) {
-        return null;
+    public void deleteUser(Long userId) {
+
+        userRepository.deleteById(userId);
+    }
+
+    @Override
+    public EntityModel<User> convertUserToModel(User user) {
+        return userModelAssembler.toModel(user);
     }
 }
