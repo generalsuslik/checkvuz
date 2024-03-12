@@ -1,22 +1,15 @@
 package checkvuz.checkvuz.university.department.service;
 
 import checkvuz.checkvuz.university.department.assembler.DepartmentTagModelAssembler;
-import checkvuz.checkvuz.university.department.controller.DepartmentTagController;
 import checkvuz.checkvuz.university.department.entity.DepartmentTag;
 import checkvuz.checkvuz.university.department.exception.DepartmentTagNotFoundException;
 import checkvuz.checkvuz.university.department.repository.DepartmentTagRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 @AllArgsConstructor
@@ -26,39 +19,29 @@ public class DepartmentTagService implements DepartmentTagServiceInterface {
     private final DepartmentTagRepository departmentTagRepository;
 
     @Override
-    public CollectionModel<EntityModel<DepartmentTag>> getDepartmentTags() {
+    public List<DepartmentTag> getDepartmentTags() {
 
-        List<EntityModel<DepartmentTag>> departmentTags = departmentTagRepository.findAll().stream()
-                .map(departmentTagModelAssembler::toModel)
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(departmentTags,
-                linkTo(methodOn(DepartmentTagController.class).getDepartmentTags()).withSelfRel());
+        return new ArrayList<>(departmentTagRepository.findAll());
     }
 
     @Override
-    public ResponseEntity<EntityModel<DepartmentTag>> createDepartmentTag(DepartmentTag tagToCreate) {
+    public DepartmentTag createDepartmentTag(DepartmentTag tagToCreate) {
 
-        EntityModel<DepartmentTag> entityModel = departmentTagModelAssembler
-                .toModel(departmentTagRepository.save(tagToCreate));
-
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+        return departmentTagRepository.save(tagToCreate);
     }
 
     @Override
-    public EntityModel<DepartmentTag> getDepartmentTag(Long departmentTagId) {
+    public DepartmentTag getDepartmentTag(Long departmentTagId) {
 
-        DepartmentTag departmentTag = departmentTagRepository
+        return departmentTagRepository
                 .findById(departmentTagId).orElseThrow(() -> new DepartmentTagNotFoundException(departmentTagId));
-
-        return departmentTagModelAssembler.toModel(departmentTag);
     }
 
     @Override
-    public ResponseEntity<EntityModel<DepartmentTag>> updateDepartmentTag(DepartmentTag departmentTagToUpdate,
+    public DepartmentTag updateDepartmentTag(DepartmentTag departmentTagToUpdate,
                                                                           Long departmentTagId) {
 
-        DepartmentTag updatedDepartmentTag = departmentTagRepository.findById(departmentTagId)
+        return departmentTagRepository.findById(departmentTagId)
                 .map(departmentTag -> {
                     departmentTag.setId(departmentTagToUpdate.getId());
                     departmentTag.setTitle(departmentTagToUpdate.getTitle());
@@ -68,16 +51,17 @@ public class DepartmentTagService implements DepartmentTagServiceInterface {
                     departmentTagToUpdate.setId(departmentTagId);
                     return departmentTagRepository.save(departmentTagToUpdate);
                 });
-
-        EntityModel<DepartmentTag> entityModel = departmentTagModelAssembler.toModel(updatedDepartmentTag);
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @Override
-    public ResponseEntity<?> deleteDepartmentTag(Long departmentTagId) {
+    public void deleteDepartmentTag(Long departmentTagId) {
 
         departmentTagRepository.deleteById(departmentTagId);
 
-        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public EntityModel<DepartmentTag> convertDepartmentTagToModel(DepartmentTag departmentTag) {
+        return null;
     }
 }

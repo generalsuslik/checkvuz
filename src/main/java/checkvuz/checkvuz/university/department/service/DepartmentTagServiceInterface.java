@@ -1,20 +1,21 @@
 package checkvuz.checkvuz.university.department.service;
 
 import checkvuz.checkvuz.university.department.entity.DepartmentTag;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface DepartmentTagServiceInterface {
 
-    CollectionModel<EntityModel<DepartmentTag>> getDepartmentTags();
+   List<DepartmentTag> getDepartmentTags();
 
-    ResponseEntity<EntityModel<DepartmentTag>> createDepartmentTag(DepartmentTag tagToCreate);
+    DepartmentTag createDepartmentTag(DepartmentTag tagToCreate);
 
-    EntityModel<DepartmentTag> getDepartmentTag(Long departmentTagId);
+    DepartmentTag getDepartmentTag(Long departmentTagId);
 
-    ResponseEntity<EntityModel<DepartmentTag>> updateDepartmentTag(DepartmentTag departmentTagToUpdate,
-                                                                   Long departmentTagId);
+    DepartmentTag updateDepartmentTag(DepartmentTag departmentTagToUpdate, Long departmentTagId);
 
-    ResponseEntity<?> deleteDepartmentTag(Long departmentTagId);
+    void deleteDepartmentTag(Long departmentTagId);
+
+    EntityModel<DepartmentTag> convertDepartmentTagToModel(DepartmentTag departmentTag);
 }

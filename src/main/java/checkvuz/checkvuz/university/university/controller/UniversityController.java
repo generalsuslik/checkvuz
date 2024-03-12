@@ -7,8 +7,14 @@ import checkvuz.checkvuz.university.university.service.UniversityService;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/universities")
@@ -19,45 +25,77 @@ public class UniversityController {
 
     @GetMapping("")
     public CollectionModel<EntityModel<University>> getUniversities() {
-        return universityService.getUniversities();
+
+        List<University> universities = universityService.getUniversities();
+
+        List<EntityModel<University>> entityModels = universities.stream()
+                .map(universityService::convertUniversityToModel)
+                .toList();
+
+        return CollectionModel.of(entityModels,
+                linkTo(methodOn(UniversityController.class).getUniversities()).withSelfRel());
     }
 
     @PostMapping("")
     public ResponseEntity<?> createUniversity(@RequestBody University universityToCreate) {
-        return universityService.createUniversity(universityToCreate);
+
+        EntityModel<University> entityModel = universityService.convertUniversityToModel(
+                universityService.createUniversity(universityToCreate)
+        );
+
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @GetMapping("/{universityId}")
     public EntityModel<University> getUniversity(@PathVariable Long universityId) {
-        return universityService.getUniversity(universityId);
+
+        return universityService.convertUniversityToModel(
+                universityService.getUniversity(universityId)
+        );
     }
 
     @PutMapping("/{universityId}")
     public ResponseEntity<?> updateUniversity(@RequestBody University universityToUpdate,
                                               @PathVariable Long universityId) {
 
-        return universityService.updateUniversity(universityToUpdate, universityId);
+        EntityModel<University> entityModel = universityService.convertUniversityToModel(
+                universityService.updateUniversity(universityToUpdate, universityId)
+        );
+
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @DeleteMapping("/{universityId}")
     public ResponseEntity<?> deleteUniversity(@PathVariable Long universityId) {
-        return universityService.deleteUniversity(universityId);
+
+        universityService.deleteUniversity(universityId);
+        return ResponseEntity.noContent().build();
     }
 
     // UNIVERSITY TAGS SECTION
     @GetMapping("/{universityId}/tags")
     public CollectionModel<EntityModel<UniversityTag>> getAssignedTags(@PathVariable Long universityId) {
-        return universityService.getAssignedTags(universityId);
+
+        List<EntityModel<UniversityTag>> assignedTags = universityService.getAssignedEntityTags(universityId);
+
+        return CollectionModel.of(assignedTags,
+                linkTo(methodOn(UniversityController.class).getAssignedTags(universityId)).withSelfRel());
     }
 
     @PutMapping("/{universityId}/tags/{tagId}")
     public ResponseEntity<?> assignTag(@PathVariable Long universityId, @PathVariable Long tagId) {
-        return universityService.assignTag(universityId, tagId);
+
+        University university = universityService.assignTag(universityId, tagId);
+        EntityModel<University> entityModel = universityService.convertUniversityToModel(university);
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @DeleteMapping("/{universityId}/tags/{tagId}")
     public ResponseEntity<?> removeTag(@PathVariable Long universityId, @PathVariable Long tagId) {
-        return universityService.removeTag(universityId, tagId);
+
+        University university = universityService.removeTag(universityId, tagId);
+        EntityModel<University> entityModel = universityService.convertUniversityToModel(university);
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     // UNIVERSITY FACULTIES SECTION

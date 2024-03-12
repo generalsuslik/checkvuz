@@ -1,14 +1,15 @@
 package checkvuz.checkvuz.university.faculty.service;
 
 import checkvuz.checkvuz.university.faculty.entity.FacultyTag;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface FacultyTagServiceInterface {
-    CollectionModel<EntityModel<FacultyTag>> getFacultyTags();
-    ResponseEntity<?> createFacultyTag(FacultyTag facultyTagToCreate);
-    EntityModel<FacultyTag> getFacultyTag(Long facultyTagId);
-    ResponseEntity<?> updateFacultyTag(FacultyTag facultyTagToUpdate, Long facultyTagId);
-    ResponseEntity<?> deleteFacultyTag(Long facultyTagId);
+    List<FacultyTag> getFacultyTags();
+    FacultyTag createFacultyTag(FacultyTag facultyTagToCreate);
+    FacultyTag getFacultyTag(Long facultyTagId);
+    FacultyTag updateFacultyTag(FacultyTag facultyTagToUpdate, Long facultyTagId);
+    void deleteFacultyTag(Long facultyTagId);
+    EntityModel<FacultyTag> convertFacultyTagToModel(FacultyTag facultyTag);
 }

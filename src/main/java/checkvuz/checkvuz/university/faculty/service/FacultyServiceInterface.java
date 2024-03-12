@@ -3,26 +3,33 @@ package checkvuz.checkvuz.university.faculty.service;
 import checkvuz.checkvuz.university.department.entity.Department;
 import checkvuz.checkvuz.university.faculty.entity.Faculty;
 import checkvuz.checkvuz.university.faculty.entity.FacultyTag;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+
 
 public interface FacultyServiceInterface {
-    CollectionModel<EntityModel<Faculty>> getAllFaculties();
+    List<Faculty> getAllFaculties();
 
-    EntityModel<Faculty> getFaculty(Long facultyId);
+    Faculty getFaculty(Long facultyId);
 
-    ResponseEntity<?> updateFaculty(Faculty facultyToUpdate, Long facultyId);
+    Faculty updateFaculty(Faculty facultyToUpdate, Long facultyId);
 
-    ResponseEntity<?> deleteFaculty(Long facultyId);
+    void deleteFaculty(Long facultyId);
 
-    CollectionModel<EntityModel<FacultyTag>> getAssignedTags(Long facultyId);
+    EntityModel<Faculty> convertFacultyToModel(Faculty faculty);
 
-    ResponseEntity<EntityModel<Faculty>> assignTag(Long facultyId, Long facultyTagId);
+    List<FacultyTag> getAssignedTags(Long facultyId);
 
-    ResponseEntity<?> removeTag(Long facultyId, Long facultyTagId);
+    List<EntityModel<FacultyTag>> getAssignedTagsModels(Long facultyId);
 
-    CollectionModel<EntityModel<Department>> getAssignedDepartments(Long facultyId);
+    Faculty assignTag(Long facultyId, Long facultyTagId);
 
-    ResponseEntity<EntityModel<Department>> createAndAssignDepartment(Department departmentToCreate, Long facultyId);
+    Faculty removeTag(Long facultyId, Long facultyTagId);
+
+    List<Department> getAssignedDepartments(Long facultyId);
+
+    List<EntityModel<Department>> getAssignedDepartmentsModels(Long facultyId);
+
+    EntityModel<Department> createAndAssignDepartment(Department departmentToCreate, Long facultyId);
 }

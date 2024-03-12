@@ -22,5 +22,7 @@ public interface UserServiceInterface {
 
     ResponseEntity<EntityModel<User>> updateUser(User userToUpdate, Long userId);
 
+    ResponseEntity<?> assignUserRole(String role, Long userId);
+
     ResponseEntity<?> deleteUser(Long userId);
 }

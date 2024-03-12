@@ -1,29 +1,17 @@
 package checkvuz.checkvuz.university.department.service;
 
 import checkvuz.checkvuz.university.department.assembler.DepartmentModelAssembler;
-import checkvuz.checkvuz.university.department.assembler.DepartmentTagModelAssembler;
-import checkvuz.checkvuz.university.department.controller.DepartmentController;
-import checkvuz.checkvuz.university.department.controller.DepartmentTagController;
 import checkvuz.checkvuz.university.department.entity.Department;
 import checkvuz.checkvuz.university.department.entity.DepartmentTag;
 import checkvuz.checkvuz.university.department.exception.DepartmentNotFoundException;
-import checkvuz.checkvuz.university.department.exception.DepartmentTagNotFoundException;
 import checkvuz.checkvuz.university.department.repository.DepartmentRepository;
-import checkvuz.checkvuz.university.department.repository.DepartmentTagRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 @AllArgsConstructor
@@ -32,36 +20,33 @@ public class DepartmentService implements DepartmentServiceInterface {
     private final DepartmentModelAssembler departmentModelAssembler;
     private final DepartmentRepository departmentRepository;
 
-    private final DepartmentTagModelAssembler departmentTagModelAssembler;
-    private final DepartmentTagRepository departmentTagRepository;
-
+    private final DepartmentTagService departmentTagService;
 
     // MAIN DEPARTMENT SECTION
     @Override
-    public CollectionModel<EntityModel<Department>> getDepartments() {
+    public List<Department> getDepartments() {
 
-        List<EntityModel<Department>> departments = departmentRepository.findAll().stream()
-                .map(departmentModelAssembler::toModel)
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(departments,
-                linkTo(methodOn(DepartmentController.class).getDepartments()).withSelfRel());
+        return new ArrayList<>(departmentRepository.findAll());
     }
 
     @Override
-    public EntityModel<Department> getDepartment(Long departmentId) {
+    public Department createDepartment(Department departmentToCreate) {
 
-        Department department = departmentRepository
+        return departmentRepository.save(departmentToCreate);
+    }
+
+    @Override
+    public Department getDepartment(Long departmentId) {
+
+        return departmentRepository
                 .findById(departmentId).orElseThrow(() -> new DepartmentNotFoundException(departmentId));
-
-        return departmentModelAssembler.toModel(department);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<EntityModel<Department>> updateDepartment(Department departmentToUpdate, Long departmentId) {
+    public Department updateDepartment(Department departmentToUpdate, Long departmentId) {
 
-        Department updatedDepartment = departmentRepository.findById(departmentId)
+        return departmentRepository.findById(departmentId)
                 .map(department -> {
                     department.setId(departmentToUpdate.getId());
                     department.setTitle(departmentToUpdate.getTitle());
@@ -75,68 +60,73 @@ public class DepartmentService implements DepartmentServiceInterface {
                     departmentToUpdate.setId(departmentId);
                     return departmentRepository.save(departmentToUpdate);
                 });
-
-        EntityModel<Department> entityModel = departmentModelAssembler.toModel(updatedDepartment);
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<?> deleteDepartment(Long departmentId) {
+    public void deleteDepartment(Long departmentId) {
 
         departmentRepository.deleteById(departmentId);
+    }
 
-        return ResponseEntity.noContent().build();
+    @Override
+    public EntityModel<Department> convertDepartmentToModel(Department department) {
+        return departmentModelAssembler.toModel(department);
     }
 
     // DEPARTMENT TAG SECTION
     @Override
-    public CollectionModel<EntityModel<DepartmentTag>> getAssignedTags(Long departmentId) {
+    public List<DepartmentTag> getAssignedTags(Long departmentId) {
+        Department department = getDepartment(departmentId);
+        List<DepartmentTag> departmentTags = departmentTagService.getDepartmentTags();
 
-        Department department = departmentRepository
-                .findById(departmentId).orElseThrow(() -> new DepartmentNotFoundException(departmentId));
-        List<DepartmentTag> departmentTags = departmentTagRepository.findAll().stream().toList();
+        List<DepartmentTag> assignedTags = new ArrayList<>();
+        for (DepartmentTag tag : departmentTags) {
+            if (department.getDepartmentTags().contains(tag)) {
+                assignedTags.add(tag);
+            }
+        }
+
+        return assignedTags;
+    }
+
+    @Override
+    public List<EntityModel<DepartmentTag>> getAssignedTagsModels(Long departmentId) {
+
+        Department department = getDepartment(departmentId);
+        List<DepartmentTag> departmentTags = departmentTagService.getDepartmentTags();
 
         List<EntityModel<DepartmentTag>> assignedTags = new ArrayList<>();
         for (DepartmentTag tag : departmentTags) {
             if (department.getDepartmentTags().contains(tag)) {
-                assignedTags.add(departmentTagModelAssembler.toModel(tag));
+                assignedTags.add(departmentTagService.convertDepartmentTagToModel(tag));
             }
         }
 
-        return CollectionModel.of(assignedTags,
-                linkTo(methodOn(DepartmentTagController.class).getDepartmentTags()).withSelfRel());
+        return assignedTags;
     }
 
     @Override
     @Transactional
-    public ResponseEntity<EntityModel<Department>> assignTag(Long departmentId, Long departmentTagId) {
+    public Department assignTag(Long departmentId, Long departmentTagId) {
 
         Department department = departmentRepository
                 .findById(departmentId).orElseThrow(() -> new DepartmentNotFoundException(departmentId));
-        DepartmentTag departmentTag = departmentTagRepository
-                .findById(departmentTagId).orElseThrow(() -> new DepartmentTagNotFoundException(departmentTagId));
+        DepartmentTag departmentTag = departmentTagService.getDepartmentTag(departmentTagId);
 
         department.getDepartmentTags().add(departmentTag);
-        departmentRepository.save(department);
-
-        EntityModel<Department> entityModel = departmentModelAssembler.toModel(department);
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+        return departmentRepository.save(department);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<EntityModel<Department>> removeTag(Long departmentId, Long departmentTagId) {
+    public Department removeTag(Long departmentId, Long departmentTagId) {
 
         Department department = departmentRepository
                 .findById(departmentId).orElseThrow(() -> new DepartmentNotFoundException(departmentId));
-        DepartmentTag departmentTag = departmentTagRepository
-                .findById(departmentTagId).orElseThrow(() -> new DepartmentTagNotFoundException(departmentTagId));
+        DepartmentTag departmentTag = departmentTagService.getDepartmentTag(departmentTagId);
 
         department.getDepartmentTags().remove(departmentTag);
-        departmentRepository.save(department);
-
-        EntityModel<Department> entityModel = departmentModelAssembler.toModel(department);
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+        return departmentRepository.save(department);
     }
 }

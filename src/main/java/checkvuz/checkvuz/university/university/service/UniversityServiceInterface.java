@@ -7,22 +7,28 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 public interface UniversityServiceInterface {
-    CollectionModel<EntityModel<University>> getUniversities();
+    List<University> getUniversities();
 
-    ResponseEntity<?> createUniversity(University universityToCreate);
+    University createUniversity(University universityToCreate);
 
-    EntityModel<University> getUniversity(Long universityId);
+    University getUniversity(Long universityId);
 
-    ResponseEntity<?> updateUniversity(University universityToUpdate, Long id);
+    University updateUniversity(University universityToUpdate, Long id);
 
-    ResponseEntity<?> deleteUniversity(Long id);
+    void deleteUniversity(Long id);
 
-    CollectionModel<EntityModel<UniversityTag>> getAssignedTags(Long universityId);
+    EntityModel<University> convertUniversityToModel(University university);
 
-    ResponseEntity<EntityModel<University>> assignTag(Long universityId, Long tagId);
+    List<UniversityTag> getAssignedTags(Long universityId);
 
-    ResponseEntity<?> removeTag(Long universityId, Long tagId);
+    List<EntityModel<UniversityTag>> getAssignedEntityTags(Long universityId);
+
+    University assignTag(Long universityId, Long tagId);
+
+    University removeTag(Long universityId, Long tagId);
 
     CollectionModel<EntityModel<Faculty>> getUniversityFaculties(Long universityId);
 

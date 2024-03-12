@@ -4,6 +4,7 @@ import checkvuz.checkvuz.security.dto.RegistrationUserDto;
 import checkvuz.checkvuz.user.assembler.UserModelAssembler;
 import checkvuz.checkvuz.user.controller.UserController;
 import checkvuz.checkvuz.user.entity.User;
+import checkvuz.checkvuz.user.entity.UserRole;
 import checkvuz.checkvuz.user.exception.UserNotFoundByEmailException;
 import checkvuz.checkvuz.user.exception.UserNotFoundByIdException;
 import checkvuz.checkvuz.user.repository.UserRepository;
@@ -105,19 +106,13 @@ public class UserService implements UserDetailsService, UserServiceInterface {
     }
 
     @Override
-    public ResponseEntity<?> deleteUser(Long userId) {
+    public ResponseEntity<?> assignUserRole(String role, Long userId) {
+        UserRole userRole = roleService.getRoleByTitle(role).getContent();
         return null;
     }
 
-//    public static void main(String[] args) {
-//        User user = User.builder()
-//                .id(1L)
-//                .username("asd")
-//                .email("asd")
-//                .password("asd")
-//                .roles(Set.of(UserRole.builder().title("USER_ROLE").build()))
-//                .build();
-//
-//        System.out.println(user.getAuthorities());
-//    }
+    @Override
+    public ResponseEntity<?> deleteUser(Long userId) {
+        return null;
+    }
 }
