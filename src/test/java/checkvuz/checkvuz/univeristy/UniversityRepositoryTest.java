@@ -1,9 +1,9 @@
 package checkvuz.checkvuz.univeristy;
 
-import checkvuz.checkvuz.university.entity.University;
-import checkvuz.checkvuz.university.exception.UniversityNotFoundByTitleException;
-import checkvuz.checkvuz.university.exception.UniversityNotFoundException;
-import checkvuz.checkvuz.university.repository.UniversityRepository;
+import checkvuz.checkvuz.university.university.entity.University;
+import checkvuz.checkvuz.university.university.exception.UniversityNotFoundByTitleException;
+import checkvuz.checkvuz.university.university.exception.UniversityNotFoundException;
+import checkvuz.checkvuz.university.university.repository.UniversityRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -48,6 +48,7 @@ public class UniversityRepositoryTest {
     @Test
     public void universityRepository_getAll_returnMoreThanOneUniversity() {
 
+        // Arrange
         University university1 = University.builder()
                 .title("university1")
                 .expandedTitle("expanded_title1")
@@ -62,11 +63,13 @@ public class UniversityRepositoryTest {
                 .foundingYear(1951)
                 .build();
 
+        // Act
         universityRepository.save(university1);
         universityRepository.save(university2);
 
         List<University> universityList = universityRepository.findAll();
 
+        // Assert
         assertThat(universityList).isNotNull();
         assertThat(universityList.size()).isEqualTo(2);
     }
@@ -74,6 +77,7 @@ public class UniversityRepositoryTest {
     @Test
     public void universityRepository_findById_returnUniversity() {
 
+        // Arrange
         University university = University.builder()
                 .title("university1")
                 .expandedTitle("expanded_title1")
@@ -81,17 +85,20 @@ public class UniversityRepositoryTest {
                 .foundingYear(1900)
                 .build();
 
+        // Act
         universityRepository.save(university);
 
         University foundedUniversity = universityRepository
                 .findById(university.getId()).orElseThrow(() -> new UniversityNotFoundException(university.getId()));
 
+        // Assert
         assertThat(foundedUniversity).isNotNull();
     }
 
     @Test
     public void universityRepository_findByTitle_returnUniversityNotNull() {
 
+        // Arrange
         University university = University.builder()
                 .title("university")
                 .expandedTitle("expanded_title")
@@ -99,18 +106,21 @@ public class UniversityRepositoryTest {
                 .foundingYear(1900)
                 .build();
 
+        // Act
         universityRepository.save(university);
 
         University foundedUniversity = universityRepository
                 .findByTitle(university.getTitle())
                 .orElseThrow(() -> new UniversityNotFoundByTitleException(university.getTitle()));
 
+        // Assert
         assertThat(foundedUniversity).isNotNull();
     }
 
     @Test
     public void universityRepository_updateUniversity_returnUniversityNotNull() {
 
+        // Arrange
         University university = University.builder()
                 .title("university")
                 .expandedTitle("expanded_title")
@@ -118,6 +128,7 @@ public class UniversityRepositoryTest {
                 .foundingYear(1900)
                 .build();
 
+        // Act
         universityRepository.save(university);
 
         University foundedUniversity = universityRepository
@@ -129,6 +140,7 @@ public class UniversityRepositoryTest {
 
         University updatedUniversity = universityRepository.save(foundedUniversity);
 
+        // Assert
         assertThat(updatedUniversity.getId()).isEqualTo(university.getId());
         assertThat(updatedUniversity.getTitle()).isEqualTo("updatedTitle");
         assertThat(updatedUniversity.getExpandedTitle()).isEqualTo(university.getExpandedTitle());
@@ -140,6 +152,7 @@ public class UniversityRepositoryTest {
     @Test
     public void universityRepository_deleteById_returnUniversityIsEmpty() {
 
+        // Arrange
         University university = University.builder()
                 .title("university1")
                 .expandedTitle("expanded_title1")
@@ -147,11 +160,13 @@ public class UniversityRepositoryTest {
                 .foundingYear(1900)
                 .build();
 
+        // Act
         universityRepository.save(university);
 
         universityRepository.deleteById(university.getId());
         Optional<University> deletedUniversity = universityRepository.findById(university.getId());
 
+        // Assert
         assertThat(deletedUniversity).isEmpty();
     }
 }

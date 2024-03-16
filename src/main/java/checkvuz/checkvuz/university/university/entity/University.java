@@ -14,7 +14,9 @@ import java.util.Set;
 @Entity
 @Table(name = "universities")
 public class University {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false, name = "title", unique = true)
     private String title;
