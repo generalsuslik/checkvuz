@@ -1,6 +1,8 @@
 package checkvuz.checkvuz.university.university.controller;
 
 import checkvuz.checkvuz.university.faculty.entity.Faculty;
+import checkvuz.checkvuz.university.program.controller.ProgramController;
+import checkvuz.checkvuz.university.program.entity.Program;
 import checkvuz.checkvuz.university.university.entity.University;
 import checkvuz.checkvuz.university.university.entity.UniversityTag;
 import checkvuz.checkvuz.university.university.service.UniversityService;
@@ -101,13 +103,54 @@ public class UniversityController {
     // UNIVERSITY FACULTIES SECTION
     @GetMapping("/{universityId}/faculties")
     public CollectionModel<EntityModel<Faculty>> getUniversityFaculties(@PathVariable Long universityId) {
-        return universityService.getUniversityFaculties(universityId);
+
+        List<EntityModel<Faculty>> faculties = universityService.getUniversityFacultyModels(universityId);
+
+        return CollectionModel.of(faculties,
+                linkTo(methodOn(UniversityController.class).getUniversityFaculties(universityId)).withRel("faculties"));
     }
 
     @PostMapping("/{universityId}/faculties")
-    public ResponseEntity<EntityModel<Faculty>> createAndAssignFaculty(@PathVariable Long universityId,
+    public ResponseEntity<EntityModel<University>> createAndAssignFaculty(@PathVariable Long universityId,
                                                                        @RequestBody Faculty facultyToCreate) {
 
-        return universityService.createAndAssignFaculty(universityId, facultyToCreate);
+
+        EntityModel<University> university = universityService.convertUniversityToModel(
+                universityService.createAndAssignFaculty(universityId, facultyToCreate)
+        );
+
+        return ResponseEntity.ok(university);
+    }
+
+    // UNIVERSITY STUDY PROGRAMS SECTION
+    @GetMapping("/{universityId}/programs")
+    public CollectionModel<EntityModel<Program>> getPrograms(@PathVariable Long universityId) {
+
+        List<EntityModel<Program>> programs = universityService.getProgramModels(universityId);
+        return CollectionModel.of(programs,
+                linkTo(methodOn(ProgramController.class).getPrograms()).withRel("programs")
+        );
+    }
+
+    @PutMapping("/{universityId}/programs/{programId}")
+    public ResponseEntity<EntityModel<University>> addProgram(@PathVariable Long universityId,
+                                                              @PathVariable Long programId) {
+
+        EntityModel<University> university = universityService.convertUniversityToModel(
+                universityService.addProgram(universityId, programId)
+        );
+
+        return ResponseEntity.ok(university);
+    }
+
+    @DeleteMapping("/{universityId}/programs/{programId}")
+    public ResponseEntity<EntityModel<University>> removeProgram(@PathVariable Long universityId,
+                                                                 @PathVariable Long programId) {
+
+        EntityModel<University> university = universityService.convertUniversityToModel(
+                universityService.removeProgram(universityId, programId)
+        );
+
+        return ResponseEntity.ok(university);
     }
 }

@@ -1,4 +1,5 @@
 package checkvuz.checkvuz.university.university.entity;
+import checkvuz.checkvuz.university.program.entity.Program;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,14 @@ public class University {
 
     @Column(nullable = false, name = "founding_year")
     private Integer foundingYear;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "university_programs_relation",
+            joinColumns = @JoinColumn(name = "university_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "program_id", referencedColumnName = "id")
+    )
+    private Set<Program> programs;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(

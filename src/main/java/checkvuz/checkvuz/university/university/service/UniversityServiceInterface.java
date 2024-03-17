@@ -1,11 +1,10 @@
 package checkvuz.checkvuz.university.university.service;
 
 import checkvuz.checkvuz.university.faculty.entity.Faculty;
+import checkvuz.checkvuz.university.program.entity.Program;
 import checkvuz.checkvuz.university.university.entity.University;
 import checkvuz.checkvuz.university.university.entity.UniversityTag;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -30,7 +29,17 @@ public interface UniversityServiceInterface {
 
     University removeTag(Long universityId, Long tagId);
 
-    CollectionModel<EntityModel<Faculty>> getUniversityFaculties(Long universityId);
+    List<Faculty> getUniversityFaculties(Long universityId);
 
-    ResponseEntity<EntityModel<Faculty>>  createAndAssignFaculty(Long universityId, Faculty facultyToCreate);
+    List<EntityModel<Faculty>> getUniversityFacultyModels(Long universityId);
+
+    University createAndAssignFaculty(Long universityId, Faculty facultyToCreate);
+
+    List<Program> getPrograms(Long universityId);
+
+    List<EntityModel<Program>> getProgramModels(Long universityId);
+
+    University addProgram(Long universityId, Long programId);
+
+    University removeProgram(Long universityId, Long programId);
 }

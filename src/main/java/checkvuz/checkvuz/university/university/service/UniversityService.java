@@ -1,27 +1,23 @@
 package checkvuz.checkvuz.university.university.service;
 
-import checkvuz.checkvuz.university.faculty.assembler.FacultyModelAssembler;
 import checkvuz.checkvuz.university.faculty.entity.Faculty;
-import checkvuz.checkvuz.university.faculty.repository.FacultyRepository;
+import checkvuz.checkvuz.university.faculty.service.FacultyService;
+import checkvuz.checkvuz.university.program.entity.Program;
+import checkvuz.checkvuz.university.program.service.ProgramService;
 import checkvuz.checkvuz.university.university.assembler.UniversityModelAssembler;
-import checkvuz.checkvuz.university.university.controller.UniversityController;
 import checkvuz.checkvuz.university.university.entity.University;
 import checkvuz.checkvuz.university.university.entity.UniversityTag;
 import checkvuz.checkvuz.university.university.exception.UniversityNotFoundException;
 import checkvuz.checkvuz.university.university.repository.UniversityRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -31,9 +27,8 @@ public class UniversityService implements UniversityServiceInterface {
     private final UniversityRepository universityRepository;
 
     private final UniversityTagService universityTagService;
-
-    private final FacultyModelAssembler facultyModelAssembler;
-    private final FacultyRepository facultyRepository;
+    private final FacultyService facultyService;
+    private final ProgramService programService;
 
     // get all universities
     @Override
@@ -135,8 +130,7 @@ public class UniversityService implements UniversityServiceInterface {
     @Transactional
     public University assignTag(Long universityId, Long tagId) {
 
-        University university = universityRepository
-                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
+        University university = getUniversity(universityId);
         UniversityTag universityTag = universityTagService.getUniversityTag(tagId);
 
         university.getUniversityTags().add(universityTag);
@@ -148,8 +142,7 @@ public class UniversityService implements UniversityServiceInterface {
     @Transactional
     public University removeTag(Long universityId, Long tagId) {
 
-        University university = universityRepository
-                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
+        University university = getUniversity(universityId);
         UniversityTag universityTag = universityTagService.getUniversityTag(tagId);
 
         university.getUniversityTags().remove(universityTag);
@@ -158,33 +151,65 @@ public class UniversityService implements UniversityServiceInterface {
 
     // UNIVERSITY FACULTIES SECTION
     @Override
-    public CollectionModel<EntityModel<Faculty>> getUniversityFaculties(Long universityId) {
+    public List<Faculty> getUniversityFaculties(Long universityId) {
 
-        University university = universityRepository
-                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
+        return facultyService.getAllFaculties().stream()
+                .filter(faculty -> Objects.equals(faculty.getUniversity().getId(), universityId))
+                .collect(Collectors.toList());
+    }
 
-        List<EntityModel<Faculty>> universityFaculties = new ArrayList<>();
+    @Override
+    public List<EntityModel<Faculty>> getUniversityFacultyModels(Long universityId) {
 
-        for (Faculty faculty : facultyRepository.findAll()) {
-            if (faculty.getUniversity() == university) {
-                universityFaculties.add(facultyModelAssembler.toModel(faculty));
-            }
-        }
-
-        return CollectionModel.of(universityFaculties,
-                linkTo(methodOn(UniversityController.class).getUniversityFaculties(universityId)).withSelfRel());
+        return getUniversityFaculties(universityId).stream()
+                .map(facultyService::convertFacultyToModel)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public ResponseEntity<EntityModel<Faculty>> createAndAssignFaculty(Long universityId, Faculty facultyToCreate) {
+    public University createAndAssignFaculty(Long universityId, Faculty facultyToCreate) {
 
-        University university = universityRepository
-                .findById(universityId).orElseThrow(() -> new UniversityNotFoundException(universityId));
-
+        University university = getUniversity(universityId);
         facultyToCreate.setUniversity(university);
-        EntityModel<Faculty> entityModel = facultyModelAssembler.toModel(facultyRepository.save(facultyToCreate));
+        facultyService.saveFaculty(facultyToCreate);
 
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+        return university;
+    }
+
+    @Override
+    public List<Program> getPrograms(Long universityId) {
+
+        University university = getUniversity(universityId);
+        return programService.getPrograms().stream()
+                .filter(program -> university.getPrograms().contains(program)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EntityModel<Program>> getProgramModels(Long universityId) {
+
+        return getPrograms(universityId).stream()
+                .map(programService::convertProgramToModel)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public University addProgram(Long universityId, Long programId) {
+
+        University university = getUniversity(universityId);
+        Program program = programService.getProgramById(programId);
+
+        university.getPrograms().add(program);
+        return universityRepository.save(university);
+    }
+
+    @Override
+    public University removeProgram(Long universityId, Long programId) {
+
+        University university = getUniversity(universityId);
+        Program program = programService.getProgramById(programId);
+
+        university.getPrograms().remove(program);
+        return universityRepository.save(university);
     }
 }

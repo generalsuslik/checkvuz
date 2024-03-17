@@ -5,6 +5,8 @@ import checkvuz.checkvuz.university.department.entity.Department;
 import checkvuz.checkvuz.university.department.entity.DepartmentTag;
 import checkvuz.checkvuz.university.department.exception.DepartmentNotFoundException;
 import checkvuz.checkvuz.university.department.repository.DepartmentRepository;
+import checkvuz.checkvuz.university.program.entity.Program;
+import checkvuz.checkvuz.university.program.service.ProgramService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.EntityModel;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +22,8 @@ public class DepartmentService implements DepartmentServiceInterface {
 
     private final DepartmentModelAssembler departmentModelAssembler;
     private final DepartmentRepository departmentRepository;
+
+    private final ProgramService programService;
 
     private final DepartmentTagService departmentTagService;
 
@@ -72,6 +77,44 @@ public class DepartmentService implements DepartmentServiceInterface {
     @Override
     public EntityModel<Department> convertDepartmentToModel(Department department) {
         return departmentModelAssembler.toModel(department);
+    }
+
+    @Override
+    public List<Program> getPrograms(Long departmentId) {
+
+        Department department = getDepartment(departmentId);
+
+        return programService.getPrograms().stream()
+                .filter(program -> department.getPrograms().contains(program))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EntityModel<Program>> getProgramModels(Long departmentId) {
+
+        return getPrograms(departmentId).stream()
+                .map(programService::convertProgramToModel)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Department addProgram(Long departmentId, Long programId) {
+
+        Department department = getDepartment(departmentId);
+        Program program = programService.getProgramById(programId);
+
+        department.getPrograms().add(program);
+        return departmentRepository.save(department);
+    }
+
+    @Override
+    public Department removeProgram(Long departmentId, Long programId) {
+
+        Department department = getDepartment(departmentId);
+        Program program = programService.getProgramById(programId);
+
+        department.getPrograms().remove(program);
+        return departmentRepository.save(department);
     }
 
     // DEPARTMENT TAG SECTION

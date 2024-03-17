@@ -4,6 +4,8 @@ import checkvuz.checkvuz.university.department.entity.Department;
 import checkvuz.checkvuz.university.faculty.entity.Faculty;
 import checkvuz.checkvuz.university.faculty.entity.FacultyTag;
 import checkvuz.checkvuz.university.faculty.service.FacultyService;
+import checkvuz.checkvuz.university.program.controller.ProgramController;
+import checkvuz.checkvuz.university.program.entity.Program;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -65,6 +67,54 @@ public class FacultyController {
         return ResponseEntity.noContent().build();
     }
 
+    // FACULTY DEPARTMENTS SECTION
+    @GetMapping("/{facultyTagId}/departments")
+    public CollectionModel<EntityModel<Department>> getAssignedDepartments(@PathVariable Long facultyTagId) {
+
+        List<EntityModel<Department>> departmentModels = facultyService.getAssignedDepartmentsModels(facultyTagId);
+
+        return CollectionModel.of(departmentModels,
+                linkTo(methodOn(FacultyController.class).getAssignedDepartments(facultyTagId)).withSelfRel());
+    }
+
+    @PostMapping("/{facultyId}/departments")
+    public ResponseEntity<EntityModel<Department>> createAndAssignDepartment(@RequestBody Department departmentToCreate,
+                                                                             @PathVariable Long facultyId) {
+
+        EntityModel<Department> entityModel = facultyService.createAndAssignDepartment(departmentToCreate, facultyId);
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    }
+
+    // FACULTY STUDY PROGRAMS SECTION
+    @GetMapping("/{facultyId}/programs")
+    public CollectionModel<EntityModel<Program>> getPrograms(@PathVariable Long facultyId) {
+
+        List<EntityModel<Program>> programs = facultyService.getProgramModels(facultyId);
+        return CollectionModel.of(programs,
+                linkTo(methodOn(ProgramController.class).getPrograms()).withRel("programs")
+        );
+    }
+
+    @PutMapping("/{facultyId}/programs/{programId}")
+    public ResponseEntity<EntityModel<Faculty>> addProgram(@PathVariable Long facultyId,
+                                                           @PathVariable Long programId) {
+
+        EntityModel<Faculty> entityModel = facultyService.convertFacultyToModel(
+                facultyService.addProgram(facultyId, programId)
+        );
+        return ResponseEntity.ok(entityModel);
+    }
+
+    @DeleteMapping("/{facultyId}/programs/{programId}")
+    public ResponseEntity<EntityModel<Faculty>> removeProgram(@PathVariable Long facultyId,
+                                                              @PathVariable Long programId) {
+
+        EntityModel<Faculty> entityModel = facultyService.convertFacultyToModel(
+                facultyService.removeProgram(facultyId, programId)
+        );
+        return ResponseEntity.ok(entityModel);
+    }
+
     // FACULTY TAGS SECTION
     @GetMapping("/{facultyId}/tags")
     public CollectionModel<EntityModel<FacultyTag>> getAssignedTags(@PathVariable Long facultyId) {
@@ -93,24 +143,6 @@ public class FacultyController {
                 facultyService.removeTag(facultyId, facultyTagId)
         );
 
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
-    }
-
-    // FACULTY DEPARTMENTS SECTION
-    @GetMapping("/{facultyTagId}/departments")
-    public CollectionModel<EntityModel<Department>> getAssignedDepartments(@PathVariable Long facultyTagId) {
-
-        List<EntityModel<Department>> departmentModels = facultyService.getAssignedDepartmentsModels(facultyTagId);
-
-        return CollectionModel.of(departmentModels,
-                linkTo(methodOn(FacultyController.class).getAssignedDepartments(facultyTagId)).withSelfRel());
-    }
-
-    @PostMapping("/{facultyId}/departments")
-    public ResponseEntity<EntityModel<Department>> createAndAssignDepartment(@RequestBody Department departmentToCreate,
-                                                                             @PathVariable Long facultyId) {
-
-        EntityModel<Department> entityModel = facultyService.createAndAssignDepartment(departmentToCreate, facultyId);
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 }

@@ -1,5 +1,6 @@
 package checkvuz.checkvuz.university.faculty.entity;
 
+import checkvuz.checkvuz.university.program.entity.Program;
 import checkvuz.checkvuz.university.university.entity.University;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,7 +26,7 @@ public class Faculty {
     private String title;
 
     @Column(name = "expanded_title", nullable = false, unique = true)
-    private String expanded_title;
+    private String expandedTitle;
 
     @Column(name = "description")
     private String description;
@@ -33,6 +34,14 @@ public class Faculty {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "university_id", nullable = false)
     private University university;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "faculty_programs_relation",
+            joinColumns = @JoinColumn(name = "faculty_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "program_id", referencedColumnName = "id")
+    )
+    private Set<Program> programs;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(

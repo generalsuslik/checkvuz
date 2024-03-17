@@ -3,6 +3,8 @@ package checkvuz.checkvuz.university.department.controller;
 import checkvuz.checkvuz.university.department.entity.Department;
 import checkvuz.checkvuz.university.department.entity.DepartmentTag;
 import checkvuz.checkvuz.university.department.service.DepartmentService;
+import checkvuz.checkvuz.university.program.controller.ProgramController;
+import checkvuz.checkvuz.university.program.entity.Program;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -60,7 +62,40 @@ public class DepartmentController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/department/{departmentId}/tags")
+    // DEPARTMENT PROGRAMS SECTION
+    @GetMapping("/{departmentId}/programs")
+    public CollectionModel<EntityModel<Program>> getDepartmentPrograms(@PathVariable Long departmentId) {
+
+        List<EntityModel<Program>> programs = departmentService.getProgramModels(departmentId);
+
+        return CollectionModel.of(programs,
+                linkTo(methodOn(ProgramController.class).getPrograms()).withRel("programs")
+        );
+    }
+
+    @PutMapping("/{departmentId}/programs/{programId}")
+    public ResponseEntity<EntityModel<Department>> addProgram(@PathVariable Long departmentId,
+                                                           @PathVariable Long programId) {
+
+       EntityModel<Department> department = departmentService.convertDepartmentToModel(
+                departmentService.addProgram(departmentId, programId)
+        );
+        return ResponseEntity.ok(department);
+    }
+
+    @DeleteMapping("/{departmentId}/programs/{programId}")
+    public ResponseEntity<EntityModel<Department>> removeProgram(@PathVariable Long departmentId,
+                                                              @PathVariable Long programId) {
+
+        EntityModel<Department> department = departmentService.convertDepartmentToModel(
+                departmentService.removeProgram(departmentId, programId)
+        );
+        return ResponseEntity.ok(department);
+    }
+
+
+    // DEPARTMENT TAGS SECTION
+    @GetMapping("/{departmentId}/tags")
     public CollectionModel<EntityModel<DepartmentTag>> getAssignedTags(@PathVariable Long departmentId) {
 
         List<EntityModel<DepartmentTag>> assignedTags = departmentService.getAssignedTagsModels(departmentId);
@@ -68,7 +103,7 @@ public class DepartmentController {
                 linkTo(methodOn(DepartmentController.class).getAssignedTags(departmentId)).withSelfRel());
     }
 
-    @PutMapping("/department/{departmentId}/tags/{departmentTagId}")
+    @PutMapping("/{departmentId}/tags/{departmentTagId}")
     public ResponseEntity<EntityModel<Department>> assignTag(@PathVariable Long departmentId,
                                                              @PathVariable Long departmentTagId) {
 
@@ -77,7 +112,7 @@ public class DepartmentController {
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
-    @DeleteMapping("/department/{departmentId}/tags/{departmentTagId}")
+    @DeleteMapping("/{departmentId}/tags/{departmentTagId}")
     public ResponseEntity<EntityModel<Department>> deleteTag(@PathVariable Long departmentId,
                                                              @PathVariable Long departmentTagId) {
 
