@@ -46,6 +46,7 @@ public class JwtTokenUtils {
     }
 
     public String getUsername(String token) {
+
         return getAllClaimsFromToken(token).getSubject();
     }
 
@@ -55,10 +56,12 @@ public class JwtTokenUtils {
     }
 
     private boolean isTokenExpired(String token) {
+
         return getTokenExpiration(token).before(new Date());
     }
 
     private Date getTokenExpiration(String token) {
+
         return getClaim(token, Claims::getExpiration);
     }
 

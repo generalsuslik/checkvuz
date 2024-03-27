@@ -123,6 +123,7 @@ public class UserService implements UserDetailsService, UserServiceInterface {
 
     @Override
     public EntityModel<User> convertUserToModel(User user) {
+
         return userModelAssembler.toModel(user);
     }
 }

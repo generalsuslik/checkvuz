@@ -6,14 +6,18 @@ import checkvuz.checkvuz.university.program.entity.Program;
 import checkvuz.checkvuz.university.program.service.ProgramService;
 import checkvuz.checkvuz.university.university.assembler.UniversityModelAssembler;
 import checkvuz.checkvuz.university.university.entity.University;
+import checkvuz.checkvuz.university.university.entity.UniversityImage;
 import checkvuz.checkvuz.university.university.entity.UniversityTag;
 import checkvuz.checkvuz.university.university.exception.UniversityNotFoundException;
 import checkvuz.checkvuz.university.university.repository.UniversityRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +30,7 @@ public class UniversityService implements UniversityServiceInterface {
     private final UniversityModelAssembler universityModelAssembler;
     private final UniversityRepository universityRepository;
 
+    private final UniversityImageService universityImageService;
     private final UniversityTagService universityTagService;
     private final FacultyService facultyService;
     private final ProgramService programService;
@@ -40,7 +45,13 @@ public class UniversityService implements UniversityServiceInterface {
     // create new university
     @Override
     @Transactional
-    public University createUniversity(University universityToCreate) {
+    public University createUniversity(University universityToCreate, @Nullable MultipartFile imageFile) throws IOException {
+
+        if (imageFile != null) {
+            UniversityImage universityImage = universityImageService.saveImageToStorage(imageFile);
+            universityToCreate.setUniversityImage(universityImage);
+        }
+
         return universityRepository.save(universityToCreate);
     }
 

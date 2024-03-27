@@ -11,8 +11,11 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -39,10 +42,11 @@ public class UniversityController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createUniversity(@RequestBody University universityToCreate) {
+    public ResponseEntity<?> createUniversity(@RequestBody University universityToCreate,
+                                              @RequestParam("image") @Nullable MultipartFile imageFile) throws IOException {
 
         EntityModel<University> entityModel = universityService.convertUniversityToModel(
-                universityService.createUniversity(universityToCreate)
+                universityService.createUniversity(universityToCreate, imageFile)
         );
 
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
@@ -98,6 +102,14 @@ public class UniversityController {
         University university = universityService.removeTag(universityId, tagId);
         EntityModel<University> entityModel = universityService.convertUniversityToModel(university);
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    }
+
+    // UNIVERSITY IMAGES SECTION
+    @PatchMapping("/{universityId}/image")
+    public ResponseEntity<?> addUniversityImage(@RequestParam("university_image") MultipartFile imageFile) {
+
+//        UniversityImage universityImage = universityService.
+        return null;
     }
 
     // UNIVERSITY FACULTIES SECTION

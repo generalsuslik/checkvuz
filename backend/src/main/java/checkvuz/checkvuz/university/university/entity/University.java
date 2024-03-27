@@ -1,4 +1,5 @@
 package checkvuz.checkvuz.university.university.entity;
+
 import checkvuz.checkvuz.university.program.entity.Program;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,6 +23,9 @@ public class University {
     @Column(nullable = false, name = "title", unique = true)
     private String title;
 
+    @Column(name = "slug", unique = true)
+    private String slug;
+
     @Column(nullable = false, name = "expanded_title", unique = true)
     private String expandedTitle;
 
@@ -30,6 +34,10 @@ public class University {
 
     @Column(nullable = false, name = "founding_year")
     private Integer foundingYear;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "university_image_id", referencedColumnName = "id")
+    private UniversityImage universityImage;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(

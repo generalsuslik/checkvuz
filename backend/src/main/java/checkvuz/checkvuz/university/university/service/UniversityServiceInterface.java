@@ -5,13 +5,15 @@ import checkvuz.checkvuz.university.program.entity.Program;
 import checkvuz.checkvuz.university.university.entity.University;
 import checkvuz.checkvuz.university.university.entity.UniversityTag;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface UniversityServiceInterface {
     List<University> getUniversities();
 
-    University createUniversity(University universityToCreate);
+    University createUniversity(University universityToCreate, MultipartFile imageFile) throws IOException;
 
     University getUniversity(Long universityId);
 
