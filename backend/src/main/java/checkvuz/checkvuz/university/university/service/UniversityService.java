@@ -6,10 +6,11 @@ import checkvuz.checkvuz.university.program.entity.Program;
 import checkvuz.checkvuz.university.program.service.ProgramService;
 import checkvuz.checkvuz.university.university.assembler.UniversityModelAssembler;
 import checkvuz.checkvuz.university.university.entity.University;
-import checkvuz.checkvuz.university.university.entity.UniversityImage;
 import checkvuz.checkvuz.university.university.entity.UniversityTag;
 import checkvuz.checkvuz.university.university.exception.UniversityNotFoundException;
 import checkvuz.checkvuz.university.university.repository.UniversityRepository;
+import checkvuz.checkvuz.utils.image.entity.Image;
+import checkvuz.checkvuz.utils.image.service.ImageService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.EntityModel;
@@ -30,7 +31,7 @@ public class UniversityService implements UniversityServiceInterface {
     private final UniversityModelAssembler universityModelAssembler;
     private final UniversityRepository universityRepository;
 
-    private final UniversityImageService universityImageService;
+    private final ImageService imageService;
     private final UniversityTagService universityTagService;
     private final FacultyService facultyService;
     private final ProgramService programService;
@@ -45,10 +46,11 @@ public class UniversityService implements UniversityServiceInterface {
     // create new university
     @Override
     @Transactional
-    public University createUniversity(University universityToCreate, @Nullable MultipartFile imageFile) throws IOException {
+    public University createUniversity(University universityToCreate,
+                                       @Nullable MultipartFile imageFile) throws IOException {
 
         if (imageFile != null) {
-            UniversityImage universityImage = universityImageService.saveImageToStorage(imageFile);
+            Image universityImage = imageService.saveImageToStorage(imageFile);
             universityToCreate.setUniversityImage(universityImage);
         }
 
@@ -81,6 +83,17 @@ public class UniversityService implements UniversityServiceInterface {
                     universityToUpdate.setId(universityId);
                     return universityRepository.save(universityToUpdate);
                 });
+    }
+
+    @Override
+    @Transactional
+    public University addUniversityImage(Long universityId, MultipartFile imageToAdd) throws IOException {
+
+        Image image = imageService.saveImageToStorage(imageToAdd);
+        University university = getUniversity(universityId);
+
+        university.setUniversityImage(image);
+        return universityRepository.save(university);
     }
 
     // delete university

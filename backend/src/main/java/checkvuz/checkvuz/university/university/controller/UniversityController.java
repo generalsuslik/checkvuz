@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -106,10 +107,14 @@ public class UniversityController {
 
     // UNIVERSITY IMAGES SECTION
     @PatchMapping("/{universityId}/image")
-    public ResponseEntity<?> addUniversityImage(@RequestParam("university_image") MultipartFile imageFile) {
+    public ResponseEntity<?> addUniversityImage(@PathVariable Long universityId,
+                                                @RequestParam("university_image") MultipartFile imageFile) throws IOException {
 
-//        UniversityImage universityImage = universityService.
-        return null;
+        EntityModel<University> entityModel = universityService.convertUniversityToModel(
+                universityService.addUniversityImage(universityId, imageFile)
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(entityModel);
     }
 
     // UNIVERSITY FACULTIES SECTION

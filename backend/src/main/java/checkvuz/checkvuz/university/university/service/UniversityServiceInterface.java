@@ -19,6 +19,8 @@ public interface UniversityServiceInterface {
 
     University updateUniversity(University universityToUpdate, Long id);
 
+    University addUniversityImage(Long universityId, MultipartFile imageToAdd) throws IOException;
+
     void deleteUniversity(Long id);
 
     EntityModel<University> convertUniversityToModel(University university);

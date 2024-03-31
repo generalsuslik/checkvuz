@@ -6,13 +6,14 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
-@MappedSuperclass
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
 @Builder
+@Entity
+@Table(name = "images")
 public class Image {
 
     /*
@@ -38,6 +39,6 @@ public class Image {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Date created_at;
+    private Date createdAt;
 
 }

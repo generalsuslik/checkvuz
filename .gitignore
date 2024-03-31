@@ -33,4 +33,5 @@ build/
 .vscode/
 
 ### Project ###
-static/images/
+/backend/src/main/resources/static/images/universities/
+/backend/src/main/resources/static/images/users

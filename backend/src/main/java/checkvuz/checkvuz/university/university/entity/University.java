@@ -1,6 +1,7 @@
 package checkvuz.checkvuz.university.university.entity;
 
 import checkvuz.checkvuz.university.program.entity.Program;
+import checkvuz.checkvuz.utils.image.entity.Image;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,7 +38,7 @@ public class University {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "university_image_id", referencedColumnName = "id")
-    private UniversityImage universityImage;
+    private Image universityImage;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
