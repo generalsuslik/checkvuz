@@ -37,4 +37,4 @@ build/
 /backend/src/main/resources/static/images/users
 
 ### js ###
-/node_modules/
+/node_modules
