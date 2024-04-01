@@ -35,3 +35,6 @@ build/
 ### Project ###
 /backend/src/main/resources/static/images/universities/
 /backend/src/main/resources/static/images/users
+
+### js ###
+/node_modules/
