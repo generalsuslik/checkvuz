@@ -21,7 +21,7 @@ public class ImageController {
     @PostMapping("")
     public ResponseEntity<?> createImage(@RequestParam("image")MultipartFile imageToCreate) throws IOException {
 
-        Image image = imageService.saveImageToStorage(imageToCreate);
+        Image image = imageService.saveImageToStorage(imageToCreate, "/users/");
         return ResponseEntity.ok(image);
     }
 

@@ -43,8 +43,9 @@ public class UniversityController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createUniversity(@RequestBody University universityToCreate,
-                                              @RequestParam("image") @Nullable MultipartFile imageFile) throws IOException {
+    public ResponseEntity<?> createUniversity(
+            @RequestBody University universityToCreate,
+            @RequestParam("image") @Nullable MultipartFile imageFile) throws IOException {
 
         EntityModel<University> entityModel = universityService.convertUniversityToModel(
                 universityService.createUniversity(universityToCreate, imageFile)
@@ -107,8 +108,9 @@ public class UniversityController {
 
     // UNIVERSITY IMAGES SECTION
     @PatchMapping("/{universityId}/image")
-    public ResponseEntity<?> addUniversityImage(@PathVariable Long universityId,
-                                                @RequestParam("university_image") MultipartFile imageFile) throws IOException {
+    public ResponseEntity<?> addUniversityImage(
+            @PathVariable Long universityId,
+            @RequestParam("university_image") MultipartFile imageFile) throws IOException {
 
         EntityModel<University> entityModel = universityService.convertUniversityToModel(
                 universityService.addUniversityImage(universityId, imageFile)

@@ -8,11 +8,15 @@ import java.io.IOException;
 
 public interface ImageServiceInterface {
 
-    Image saveImageToStorage(MultipartFile imageFile) throws IOException;
+    Image saveImageToStorage(MultipartFile imageFile, String service) throws IOException;
+
+    Image saveImageToStorage(MultipartFile imageFile, String service, boolean isDefault) throws IOException;
 
     Image getImageData(String imageTitle);
 
     Image getImageDataById(Long imageId);
+
+    Image getDefaultImageData();
 
     byte[] getImage(String imageName) throws IOException;
 

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -15,8 +17,8 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("sign-up")
-    public ResponseEntity<AuthResponseDto> register(@RequestBody RegistrationUserDto request) {
+    @PostMapping("/sign-up")
+    public ResponseEntity<AuthResponseDto> register(@RequestBody RegistrationUserDto request) throws IOException {
         return ResponseEntity.ok(authService.register(request));
     }
 

@@ -1,5 +1,6 @@
 package checkvuz.checkvuz.user.entity;
 
+import checkvuz.checkvuz.utils.image.entity.Image;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,7 +38,7 @@ public class User implements UserDetails {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_image_id", referencedColumnName = "id")
-    private UserImage userImage;
+    private Image userImage;
 
     @ManyToMany
     @JoinTable(

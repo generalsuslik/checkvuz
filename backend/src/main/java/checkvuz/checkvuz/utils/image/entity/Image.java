@@ -41,4 +41,7 @@ public class Image {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Date createdAt;
 
+    @Column(name = "is_default")
+    private boolean isDefault;
+
 }

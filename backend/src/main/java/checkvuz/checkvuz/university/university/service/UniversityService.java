@@ -50,7 +50,7 @@ public class UniversityService implements UniversityServiceInterface {
                                        @Nullable MultipartFile imageFile) throws IOException {
 
         if (imageFile != null) {
-            Image universityImage = imageService.saveImageToStorage(imageFile);
+            Image universityImage = imageService.saveImageToStorage(imageFile, "universities");
             universityToCreate.setUniversityImage(universityImage);
         }
 
@@ -89,7 +89,7 @@ public class UniversityService implements UniversityServiceInterface {
     @Transactional
     public University addUniversityImage(Long universityId, MultipartFile imageToAdd) throws IOException {
 
-        Image image = imageService.saveImageToStorage(imageToAdd);
+        Image image = imageService.saveImageToStorage(imageToAdd, "universities");
         University university = getUniversity(universityId);
 
         university.setUniversityImage(image);

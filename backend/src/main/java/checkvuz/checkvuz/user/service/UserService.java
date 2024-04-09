@@ -7,6 +7,8 @@ import checkvuz.checkvuz.user.entity.UserRole;
 import checkvuz.checkvuz.user.exception.UserNotFoundByEmailException;
 import checkvuz.checkvuz.user.exception.UserNotFoundByIdException;
 import checkvuz.checkvuz.user.repository.UserRepository;
+import checkvuz.checkvuz.utils.image.entity.Image;
+import checkvuz.checkvuz.utils.image.service.ImageService;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +34,7 @@ public class UserService implements UserDetailsService, UserServiceInterface {
     private final UserModelAssembler userModelAssembler;
     private final UserRepository userRepository;
 
+    private final ImageService imageService;
     private final RoleService roleService;
 
     private final PasswordEncoder passwordEncoder;
@@ -58,15 +63,37 @@ public class UserService implements UserDetailsService, UserServiceInterface {
 
     @Override
     @Transactional
-    public User createUser(@NonNull RegistrationUserDto registrationUserDto) {
-        return userRepository.save(
-                User.builder()
-                        .username(registrationUserDto.getUsername())
-                        .email(registrationUserDto.getEmail())
-                        .password(passwordEncoder.encode(registrationUserDto.getPassword()))
-                        .roles(Set.of(roleService.getUserRole()))
-                        .build()
-        );
+    public User createUser(@NonNull RegistrationUserDto registrationUserDto) throws IOException {
+
+        User user = User.builder()
+                .username(registrationUserDto.getUsername())
+                .email(registrationUserDto.getEmail())
+                .password(passwordEncoder.encode(registrationUserDto.getPassword()))
+                .roles(Set.of(roleService.getUserRole()))
+                .build();
+
+        MultipartFile imageFile = registrationUserDto.getImageFile();
+        if (imageFile != null) {
+            Image userImage = imageService.saveImageToStorage(imageFile, "/users/");
+            userImage.setDefault(false);
+            user.setUserImage(userImage);
+        } else {
+
+            Image defaultUserImage = imageService.getDefaultImageData();
+            user.setUserImage(defaultUserImage);
+        }
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User addUserImage(Long userId, MultipartFile imageToAdd) throws IOException {
+
+        User user = getUserById(userId);
+        Image userImage = imageService.saveImageToStorage(imageToAdd, "/users/");
+
+        user.setUserImage(userImage);
+        return user;
     }
 
     @Override
