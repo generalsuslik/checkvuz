@@ -17,7 +17,7 @@ import java.util.Date;
 public class Image {
 
     /*
-    * This entity will store in itself path to specific image
+    * This entity will store in itself title, path and url to a specific image
     * because when we store bytes of image, mysql database says that ~the image is to big puk puk~
     */
 

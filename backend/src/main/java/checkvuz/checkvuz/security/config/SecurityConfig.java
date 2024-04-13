@@ -23,9 +23,9 @@ import org.springframework.web.cors.CorsConfiguration;
 public class SecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
-    private final UserService userService;
-
     private final JwtRequestFilter jwtRequestFilter;
+
+    private final UserService userService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().permitAll()

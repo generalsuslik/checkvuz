@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Getter
@@ -16,5 +15,4 @@ public class RegistrationUserDto {
     private String email;
     private String password;
     private String confirmedPassword;
-    private MultipartFile imageFile;
 }

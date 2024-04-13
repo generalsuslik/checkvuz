@@ -33,12 +33,20 @@ VALUES
 -- stuff
 
 -- default user image insertion
-insert into check_vuz.images (created_at, image_path, image_url, title, type, is_default)
-values (
+INSERT INTO check_vuz.images (created_at, image_path, image_url, title, type, is_default)
+VALUES (
            '2024-04-09 15:59:27.193000',
            '/home/generalsuslik/Projects/check_vuz/backend/src/main/resources/static/images/default/users/default_user_image.jpg',
            'http://localhost:8080/api/images/default_user_image.jpg',
            'default_user_image.jpg',
            'image/jpg',
            true
-       )
+       );
+
+INSERT INTO check_vuz.programs (code, description, title)
+VALUES (
+           '01.03.02',
+           'Основной упор делается на математику. Она тут на уровне Прикладной математики.
+           На информатике в основном - АиСД, теоритическая информатика и т.п.',
+           'Прикладная математика и информатика'
+       );

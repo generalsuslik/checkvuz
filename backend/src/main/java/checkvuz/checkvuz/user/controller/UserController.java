@@ -8,7 +8,9 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,6 +61,15 @@ public class UserController {
         );
 
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    }
+
+    @PatchMapping("/{userId}/image")
+    public EntityModel<User> addUserImage(@PathVariable Long userId,
+                                          @RequestParam("image" )MultipartFile imageFile) throws IOException {
+
+        return userService.convertUserToModel(
+                userService.addUserImage(userId, imageFile)
+        );
     }
 
     @DeleteMapping("/{userId}")

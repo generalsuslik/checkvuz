@@ -63,7 +63,7 @@ public class UserService implements UserDetailsService, UserServiceInterface {
 
     @Override
     @Transactional
-    public User createUser(@NonNull RegistrationUserDto registrationUserDto) throws IOException {
+    public User createUser(@NonNull RegistrationUserDto registrationUserDto) {
 
         User user = User.builder()
                 .username(registrationUserDto.getUsername())
@@ -72,16 +72,8 @@ public class UserService implements UserDetailsService, UserServiceInterface {
                 .roles(Set.of(roleService.getUserRole()))
                 .build();
 
-        MultipartFile imageFile = registrationUserDto.getImageFile();
-        if (imageFile != null) {
-            Image userImage = imageService.saveImageToStorage(imageFile, "/users/");
-            userImage.setDefault(false);
-            user.setUserImage(userImage);
-        } else {
-
-            Image defaultUserImage = imageService.getDefaultImageData();
-            user.setUserImage(defaultUserImage);
-        }
+        Image defaultUserImage = imageService.getDefaultImageData();
+        user.setUserImage(defaultUserImage);
 
         return userRepository.save(user);
     }

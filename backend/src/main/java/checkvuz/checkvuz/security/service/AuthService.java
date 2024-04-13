@@ -13,9 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,7 +23,7 @@ public class AuthService {
 
     private final UserService userService;
 
-    public AuthResponseDto register(RegistrationUserDto request) throws IOException {
+    public AuthResponseDto register(RegistrationUserDto request) {
         User user = userService.createUser(request);
         String jwtToken = jwtTokenUtils.generateToken(user);
         log.info(user.getRoles().toString());
@@ -46,7 +43,7 @@ public class AuthService {
 
         UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
         String jwtToken = jwtTokenUtils.generateToken(userDetails);
-        log.info(userDetails.getUsername() + ": " + userDetails.getAuthorities().toString());
+        log.info("{}: {}", userDetails.getUsername(), userDetails.getAuthorities().toString());
         return AuthResponseDto.builder()
                 .username(userDetails.getUsername())
                 .token(jwtToken)
