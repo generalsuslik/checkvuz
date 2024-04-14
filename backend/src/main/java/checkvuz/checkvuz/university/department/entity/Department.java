@@ -11,9 +11,6 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
 @Builder
 @Entity
 @Table(name = "department")

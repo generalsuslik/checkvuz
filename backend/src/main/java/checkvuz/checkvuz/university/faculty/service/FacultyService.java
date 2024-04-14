@@ -10,7 +10,7 @@ import checkvuz.checkvuz.university.faculty.repository.FacultyRepository;
 import checkvuz.checkvuz.university.program.entity.Program;
 import checkvuz.checkvuz.university.program.service.ProgramService;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FacultyService implements FacultyServiceInterface {
 
     private final FacultyModelAssembler facultyModelAssembler;

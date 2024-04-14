@@ -6,9 +6,6 @@ import lombok.*;
 @MappedSuperclass
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
 @Builder
 public class Tag {
     @Id

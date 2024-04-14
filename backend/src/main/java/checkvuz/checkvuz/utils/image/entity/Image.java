@@ -6,11 +6,9 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
 @Builder
 @Entity
 @Table(name = "images")

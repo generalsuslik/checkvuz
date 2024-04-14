@@ -10,9 +10,6 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
 @Builder
 @Entity
 @Table(name = "universities")
