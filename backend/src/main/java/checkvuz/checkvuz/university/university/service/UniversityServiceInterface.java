@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface UniversityServiceInterface {
     List<University> getUniversities();
@@ -17,7 +18,9 @@ public interface UniversityServiceInterface {
 
     University getUniversity(Long universityId);
 
-    University updateUniversity(University universityToUpdate, Long id);
+    University updateUniversity(University universityToUpdate, Long universityId);
+
+    University updateUniversity(Map<String, Object> params, Long universityId);
 
     University addUniversityImage(Long universityId, MultipartFile imageToAdd) throws IOException;
 

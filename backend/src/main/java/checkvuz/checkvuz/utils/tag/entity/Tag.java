@@ -3,6 +3,7 @@ package checkvuz.checkvuz.utils.tag.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Data
 @MappedSuperclass
 @AllArgsConstructor
 @NoArgsConstructor

@@ -11,6 +11,7 @@ import checkvuz.checkvuz.university.university.exception.UniversityNotFoundExcep
 import checkvuz.checkvuz.university.university.repository.UniversityRepository;
 import checkvuz.checkvuz.utils.image.entity.Image;
 import checkvuz.checkvuz.utils.image.service.ImageService;
+import checkvuz.checkvuz.utils.utils.CheckUtils;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.EntityModel;
@@ -19,9 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,6 +82,70 @@ public class UniversityService implements UniversityServiceInterface {
                     universityToUpdate.setId(universityId);
                     return universityRepository.save(universityToUpdate);
                 });
+    }
+
+    /**
+     * this function updates university in PATCH method
+     * params are: {
+     *     "id": [Long] universityId,
+     *     "title": [String] title,
+     *     "slug": [String] slug,
+     *     "expandedTitle": [String] expandedTitle,
+     *     "description": [String] description,
+     *     "foundingYear": [Integer] foundingYear,
+     *     "universityImage": [Image] universityImage
+     * }
+     * !!! IMPORTANT NOTE !!!:
+     * U CAN'T UPDATE Set<Programs> OR Set<UniversityTags> WITH THIS METHOD
+     */
+    @Override
+    @Transactional
+    public University updateUniversity(Map<String, Object> params, Long universityId) {
+
+        // Here we check all pairs of params to have valid key name and value type
+        CheckUtils.checkParams(params, University.class);
+
+        // Then we get a university to be updated
+        University university = getUniversity(universityId);
+
+        // And now when we iterate over a params hashmap, we set parameter's value to the
+        // updating university fields
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            String fieldName = entry.getKey();
+            var value = entry.getValue();
+
+            switch (fieldName) {
+                case "id":
+                    university.setId((Long) value);
+                    break;
+
+                case "title":
+                    university.setTitle((String) value);
+                    break;
+
+                case "slug":
+                    university.setSlug((String) value);
+                    break;
+
+                case "expandedTitle":
+                    university.setExpandedTitle((String) value);
+                    break;
+
+                case "description":
+                    university.setDescription((String) value);
+                    break;
+
+                case "foundingYear":
+                    university.setFoundingYear((Integer) value);
+                    break;
+
+                case "universityImage":
+                    university.setUniversityImage((Image) value);
+                    break;
+            }
+        }
+
+        return universityRepository.save(university);
     }
 
     @Override
