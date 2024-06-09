@@ -1,0 +1,169 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "check-vuz REST API",
+    "description": "check-vuz REST API docs",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/universities": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success in getting a list of universities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "title": "id",
+                        "nullable": false,
+                        "example": 1
+                      },
+                      "title": {
+                        "type": "string",
+                        "title": "university name",
+                        "nullable": false,
+                        "example": "МФТИ"
+                      },
+                      "slug": {
+                        "type": "string",
+                        "title": "university slug (name in search line)",
+                        "nullable": false,
+                        "example": "mipt"
+                      },
+                      "expandedTitle": {
+                        "type": "string",
+                        "title": "university's expanded title",
+                        "nullable": false,
+                        "example": "Московский физико-технический институт"
+                      },
+                      "description": {
+                        "type": "string",
+                        "title": "university's description",
+                        "nullable": true,
+                        "example": "Жеское описание мфти"
+                      },
+                      "foundingYear": {
+                        "type": "integer",
+                        "title": "university year of foundation",
+                        "nullable": false,
+                        "example": 1951
+                      }
+                    },
+                    "required": ["id", "title", "slug", "foundingYear"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "title": "university name",
+                    "nullable": false,
+                    "example": "МФТИ"
+                  },
+                  "slug": {
+                    "type": "string",
+                    "title": "university slug (name in search line)",
+                    "nullable": false,
+                    "example": "mipt"
+                  },
+                  "expandedTitle": {
+                    "type": "string",
+                    "title": "university's expanded title",
+                    "nullable": false,
+                    "example": "Московский физико-технический институт"
+                  },
+                  "description": {
+                    "type": "string",
+                    "title": "university's description",
+                    "nullable": true,
+                    "example": "Жеское описание мфти"
+                  },
+                  "foundingYear": {
+                    "type": "integer",
+                    "title": "university year of foundation",
+                    "nullable": false,
+                    "example": 1951
+                  }
+                },
+                "required": ["title", "slug", "foundingYear"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "University added successfully",
+            "headers": {
+              "Location": {
+                "required": true
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "title": "university name",
+                      "nullable": false,
+                      "example": "МФТИ"
+                    },
+                    "slug": {
+                      "type": "string",
+                      "title": "university slug (name in search line)",
+                      "nullable": false,
+                      "example": "mipt"
+                    },
+                    "expandedTitle": {
+                      "type": "string",
+                      "title": "university's expanded title",
+                      "nullable": false,
+                      "example": "Московский физико-технический институт"
+                    },
+                    "description": {
+                      "type": "string",
+                      "title": "university's description",
+                      "nullable": true,
+                      "example": "Жеское описание мфти"
+                    },
+                    "foundingYear": {
+                      "type": "integer",
+                      "title": "university year of foundation",
+                      "nullable": false,
+                      "example": 1951
+                    }
+                  },
+                  "required": ["title", "slug", "foundingYear"]
+                }
+              }
+            }
+          },
+          "401": {}
+        }
+      }
+    }
+  }
+}

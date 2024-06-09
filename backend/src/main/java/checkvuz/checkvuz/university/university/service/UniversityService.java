@@ -85,6 +85,10 @@ public class UniversityService implements UniversityServiceInterface {
     }
 
     /**
+     * ----------------------------------------------------------------------
+     * !!! IMPORTANT NOTE !!!:`
+     * U CAN'T UPDATE Set<Programs> OR Set<UniversityTags> WITH THIS METHOD
+     * ----------------------------------------------------------------------
      * this function updates university in PATCH method
      * params are: {
      *     "id": [Long] universityId,
@@ -95,8 +99,10 @@ public class UniversityService implements UniversityServiceInterface {
      *     "foundingYear": [Integer] foundingYear,
      *     "universityImage": [Image] universityImage
      * }
+     * ----------------------------------------------------------------------
      * !!! IMPORTANT NOTE !!!:
      * U CAN'T UPDATE Set<Programs> OR Set<UniversityTags> WITH THIS METHOD
+     * ----------------------------------------------------------------------
      */
     @Override
     @Transactional
